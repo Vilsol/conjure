@@ -33,7 +33,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          SVELTE_BASE_PATH: '/${{ github.repository }}'
+          SVELTE_BASE_PATH: '/svelte-form-gen'
 
       - name: Deploy to pages
         uses: JamesIves/github-pages-deploy-action@4.1.0
