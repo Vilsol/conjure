@@ -1,11 +1,11 @@
 <script lang="ts">
   import { ValidationMessage } from '@felte/reporter-svelte';
-  import type { BaseElement, FormGenerator, FormInstance, Input } from '$lib';
+  import type { BaseElement, FormGenerator, FormInstance, Textarea } from '$lib';
   import Label from '$lib/common/Label.svelte';
   import Wrapper from '$lib/common/Wrapper.svelte';
   import { fromZod } from '$lib/zod';
 
-  export let definition: Input;
+  export let definition: Textarea;
   export let form: FormInstance<FormGenerator, Readonly<BaseElement<string>[]>>;
 
   $: realParams = form.resolveParams(definition);
@@ -23,7 +23,7 @@
     </svelte:component>
   {/if}
 
-  <input type={$realParams.type ?? 'text'} name={definition.name} {...$realParams} />
+  <textarea name={definition.name} {...$realParams} />
 
   <ValidationMessage for={definition.name} let:messages={message}>
     <span>{message || ''}</span>
