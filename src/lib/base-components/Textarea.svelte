@@ -1,19 +1,16 @@
 <script lang="ts">
   import { ValidationMessage } from '@felte/reporter-svelte';
-  import type { BaseElement, FormGenerator, FormInstance, Textarea } from '$lib';
+  import type { FormGenerator, FormInstance } from '$lib';
   import Label from '$lib/common/Label.svelte';
   import Wrapper from '$lib/common/Wrapper.svelte';
-  import { fromZod } from '$lib/zod';
+  import type { BaseElement } from '$lib/types';
 
-  export let definition: Textarea;
+  import type { TextareaElement } from './textarea';
+
+  export let definition: TextareaElement;
   export let form: FormInstance<FormGenerator, Readonly<BaseElement<string>[]>>;
 
   $: realParams = form.resolveParams(definition);
-
-  $: {
-    console.log(fromZod(definition.schema));
-    console.log(definition.params);
-  }
 </script>
 
 <svelte:component this={definition.components?.wrapper || Wrapper}>

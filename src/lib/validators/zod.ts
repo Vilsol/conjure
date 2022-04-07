@@ -1,18 +1,10 @@
 import { ZodNumber, ZodOptional, ZodString } from 'zod';
 import type { ZodTypeAny } from 'zod';
 
-export interface ZodDefinition {
-  type: string;
-  min?: number;
-  max?: number;
-  optional?: boolean;
-  enum?: string[];
-}
+import type { ValidatorDefinition } from './types';
 
-export const fromZod = (schema: ZodTypeAny): ZodDefinition => {
-  const def: ZodDefinition = {
-    type: 'text'
-  };
+export const fromZod = (schema: ZodTypeAny): ValidatorDefinition => {
+  const def: ValidatorDefinition = {};
 
   if (schema instanceof ZodOptional) {
     schema = schema.unwrap();
@@ -46,8 +38,6 @@ export const fromZod = (schema: ZodTypeAny): ZodDefinition => {
       def.max = schema.maxValue;
     }
   }
-
-  console.log(def);
 
   return def;
 };

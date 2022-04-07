@@ -15,6 +15,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@felte/common": "^1.0.3",
     "@felte/reporter-svelte": "^1.0.2",
     "@felte/validator-zod": "^1.0.3",
     "felte": "^1.1.1",

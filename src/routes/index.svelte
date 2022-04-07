@@ -1,8 +1,7 @@
 <script lang="ts">
-  import Form from '$lib/Form.svelte';
+  import { Form } from '$lib';
+  import { DemoBase } from '$lib/_demo/context';
   import * as zod from 'zod';
-
-  import { DemoBase } from '../lib/_demo/context';
 
   const form = DemoBase.newForm([
     {
@@ -82,7 +81,6 @@
   ] as const);
 
   const data = form.getData();
-  console.log(data);
 </script>
 
 <div class="w-1/5 px-4 py-2">

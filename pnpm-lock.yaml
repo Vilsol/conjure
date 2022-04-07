@@ -3,6 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@commitlint/cli': ^16.1.0
   '@commitlint/config-conventional': ^16.0.0
+  '@felte/common': ^1.0.3
   '@felte/reporter-svelte': ^1.0.2
   '@felte/validator-zod': ^1.0.3
   '@sveltejs/adapter-static': ^1.0.0-next.29
@@ -33,6 +34,7 @@ specifiers:
   zod: ^3.13.4
 
 dependencies:
+  '@felte/common': 1.0.3
   '@felte/reporter-svelte': 1.0.2_svelte@3.46.6
   '@felte/validator-zod': 1.0.3_zod@3.13.4
   felte: 1.1.1_svelte@3.46.6
@@ -502,6 +504,12 @@ packages:
   /@felte/common/1.0.2:
     resolution:
       { integrity: sha512-eWOFBitxN+WmwOfm6/I3DJgs9N1SlpCz7Lja2dAlla0ZJSCzdNRPo4Njcim/Ut4yNPf4fyvvv3os7rJKce2AzQ== }
+    engines: { node: ^12.20.0 || ^14.13.1 || >=16.0.0 }
+    dev: false
+
+  /@felte/common/1.0.3:
+    resolution:
+      { integrity: sha512-uOs9c9wHnfgKWsAqkUrcf2xY3zGu7JwgdgBn2ThFMJOxsdmR5GukckuRBlG0tdSSKg2UqdnWSE7IavCzBqCNMA== }
     engines: { node: ^12.20.0 || ^14.13.1 || >=16.0.0 }
     dev: false
 

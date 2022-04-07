@@ -5,6 +5,7 @@
   };
 </script>
 
+<!-- svelte-ignore a11y-label-has-associated-control -->
 <label {...params}>
   <slot />
 </label>

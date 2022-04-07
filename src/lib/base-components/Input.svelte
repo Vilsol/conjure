@@ -1,20 +1,16 @@
 <script lang="ts">
   import { ValidationMessage } from '@felte/reporter-svelte';
-  import type { BaseElement, FormGenerator, FormInstance, Select } from '$lib';
+  import type { FormGenerator, FormInstance } from '$lib';
   import Label from '$lib/common/Label.svelte';
   import Wrapper from '$lib/common/Wrapper.svelte';
-  import { fromZod } from '$lib/zod';
+  import type { BaseElement } from '$lib/types';
 
-  export let definition: Select;
+  import type { InputElement } from './input';
+
+  export let definition: InputElement;
   export let form: FormInstance<FormGenerator, Readonly<BaseElement<string>[]>>;
 
   $: realParams = form.resolveParams(definition);
-  $: realOptions = form.resolveField(definition.options);
-
-  $: {
-    console.log(fromZod(definition.schema));
-    console.log(definition.params);
-  }
 </script>
 
 <svelte:component this={definition.components?.wrapper || Wrapper}>
@@ -24,14 +20,7 @@
     </svelte:component>
   {/if}
 
-  <select name={definition.name} {...$realParams}>
-    {#if $realOptions}
-      {#each $realOptions as option}
-        <pre>{JSON.stringify(option, null, 4)}</pre>
-        <option value={option.value}>{option.label}</option>
-      {/each}
-    {/if}
-  </select>
+  <input type={$realParams.type ?? 'text'} name={definition.name} {...$realParams} />
 
   <ValidationMessage for={definition.name} let:messages={message}>
     <span>{message || ''}</span>

@@ -1,7 +1,10 @@
 <script lang="ts">
-  import type { BaseElement, FormGenerator, FormInstance, Header } from '$lib';
+  import type { FormGenerator, FormInstance } from '$lib';
+  import type { BaseElement } from '$lib/types';
 
-  export let definition: Header;
+  import type { HeaderElement } from './header';
+
+  export let definition: HeaderElement;
   export let form: FormInstance<FormGenerator, Readonly<BaseElement<string>[]>>;
 
   $: realParams = form.resolveParams(definition);
