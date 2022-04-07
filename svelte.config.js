@@ -14,6 +14,12 @@ const config = {
 
     paths: {
       base: process.env.SVELTE_BASE_PATH || ''
+    },
+
+    vite: {
+      ssr: {
+        noExternal: ['@felte/common']
+      }
     }
   }
 };
