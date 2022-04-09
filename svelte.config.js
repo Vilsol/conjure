@@ -22,6 +22,10 @@ const config = {
       ssr: {
         noExternal: ['@felte/common']
       }
+    },
+
+    prerender: {
+      default: true
     }
   }
 };
