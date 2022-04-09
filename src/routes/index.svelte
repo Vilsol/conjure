@@ -1,8 +1,10 @@
 <script context="module" lang="ts">
+  import { base } from '$app/paths';
+
   /** @type {import('./index).Load} */
   export async function load() {
     return {
-      redirect: '/getting-started/installation',
+      redirect: base + '/getting-started/installation',
       status: 302
     };
   }

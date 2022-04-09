@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from '$app/paths';
   import { page } from '$app/stores';
 
   const menu: {
@@ -111,7 +112,7 @@
                 <a
                   class:inactive={!isCurrentURL($page.routeId, element.url)}
                   class:active={isCurrentURL($page.routeId, element.url)}
-                  href={element.url}>{element.name}</a
+                  href={base + element.url}>{element.name}</a
                 >
               </li>
             {/each}
