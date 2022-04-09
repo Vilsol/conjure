@@ -1,6 +1,7 @@
-import type { Extender } from '@felte/common';
+import type { Extender, FieldsSetter } from '@felte/common';
 import { reporter as svelteReporter } from '@felte/reporter-svelte';
 import { validator as zodValidator } from '@felte/validator-zod';
+import { createForm } from 'felte';
 import type { Readable, Unsubscriber, Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 import type { ZodObject, ZodRawShape, ZodTypeAny } from 'zod';
@@ -17,22 +18,44 @@ type ReMapper<E extends Readonly<BaseElement<string>[]>> = {
 
 export class FormInstance<T extends FormGenerator, E extends Readonly<BaseElement<string>[]>> {
   private readonly data: Writable<ReMapper<E>>;
+  private setFields: FieldsSetter<Record<string, unknown>>;
   private dataSubscriber: Unsubscriber | undefined;
+  private updating = false;
 
   constructor(public generator: T, public elements: E) {
     this.data = writable({} as ReMapper<E>);
+
+    this.data.subscribe((value) => {
+      if (!this.updating && this.setFields) {
+        this.setFields(value);
+      }
+      this.updating = false;
+    });
   }
 
-  setData(data: Readable<ReMapper<E>>) {
+  createForm() {
+    const { form, data, setFields } = createForm({
+      initialValues: {}, // TODO Initial values
+      extend: this.getExtensions(),
+      onSubmit: console.log // TODO Submit handling
+    });
+
     if (this.dataSubscriber) {
       this.dataSubscriber();
       this.dataSubscriber = undefined;
     }
 
-    this.dataSubscriber = data.subscribe((d) => this.data.set(d));
+    this.setFields = setFields;
+    this.dataSubscriber = data.subscribe((d) => {
+      // TODO Figure out a cleaner way
+      this.updating = true;
+      this.data.set(d);
+    });
+
+    return form;
   }
 
-  getData(): Readable<ReMapper<E>> {
+  getData(): Writable<ReMapper<E>> {
     return this.data;
   }
 
@@ -123,6 +146,7 @@ export class FormInstance<T extends FormGenerator, E extends Readonly<BaseElemen
     return svelteReporter;
   }
 
+  // TODO Expandable extensions
   getExtensions(): Extender[] {
     return [this.getValidator(), this.getReporter()];
   }

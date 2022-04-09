@@ -1,22 +1,20 @@
 <script lang="ts">
   import type { BaseElement } from '$lib/types';
-  import { createForm } from 'felte';
 
   import type { FormGenerator, FormInstance } from './';
+  import { storeArrayToStore } from './utils/store';
 
   export let form: FormInstance<FormGenerator, Readonly<BaseElement<string>[]>>;
 
-  const { form: formBind, data } = createForm({
-    initialValues: {}, // TODO Initial values
-    extend: form.getExtensions(),
-    onSubmit: console.log // TODO Submit handling
-  });
+  const formBind = form.createForm();
 
-  form.setData(data);
+  const hideElements = storeArrayToStore(form.elements.map((e) => form.resolveField(e.hide)));
 </script>
 
 <form use:formBind>
-  {#each form.elements as element}
-    <svelte:component this={form.generator.getComponent(element.type)} definition={element} {form} />
+  {#each form.elements as element, i}
+    {#if !$hideElements[i]}
+      <svelte:component this={form.generator.getComponent(element.type)} definition={element} {form} />
+    {/if}
   {/each}
 </form>
