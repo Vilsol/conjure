@@ -1,0 +1,1 @@
+import{S as s,i as e,s as n}from"../chunks/index-9e0b8dcf.js";async function l(){return{redirect:"/getting-started/installation",status:302}}class r extends s{constructor(t){super(),e(this,t,null,null,n,{})}}export{r as default,l as load};
