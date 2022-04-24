@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="" />
+    <link rel="icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script>
+      const key = 'svelteness::color-scheme';
+      const scheme = localStorage[key];
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (scheme === 'dark' || (scheme !== 'light' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
+
+    <meta http-equiv="content-security-policy" content=""><title>Getting Started: Setup | Conjure</title>
+      <meta property="og:title" content="Getting Started: Setup | Conjure" data-svelte="svelte-jz7yyi">
+      <meta name="twitter:title" content="Getting Started: Setup | Conjure" data-svelte="svelte-jz7yyi">
+    <meta name="description" content="Setup" data-svelte="svelte-jz7yyi">
+      <meta name="twitter:description" content="Setup" data-svelte="svelte-jz7yyi">
+      <meta name="og:description" content="Setup" data-svelte="svelte-jz7yyi">
+    <meta property="og:url" content="https://vilsol.github.io/conjure//docs/getting-started/setup" data-svelte="svelte-jz7yyi">
+      <meta property="og:site_name" content="Conjure" data-svelte="svelte-jz7yyi">
+      <meta property="og:type" content="article" data-svelte="svelte-jz7yyi">
+	<link rel="stylesheet" href="/_app/assets/pages/__layout-kit-docs.svelte-d7a34ca6.css">
+	<link rel="stylesheet" href="/_app/assets/scroll-8521731d.css">
+	<link rel="modulepreload" href="/_app/start-8e0480f4.js">
+	<link rel="modulepreload" href="/_app/chunks/index-b3e2d4c5.js">
+	<link rel="modulepreload" href="/_app/chunks/singletons-770e68ce.js">
+	<link rel="modulepreload" href="/_app/chunks/paths-396f020f.js">
+	<link rel="modulepreload" href="/_app/pages/__layout-kit-docs.svelte-53e4db1e.js">
+	<link rel="modulepreload" href="/_app/chunks/contexts-d6f1f177.js">
+	<link rel="modulepreload" href="/_app/chunks/scroll-1a9e7d58.js">
+	<link rel="modulepreload" href="/_app/pages/docs/__layout@kit-docs.svelte-37f82772.js">
+	<link rel="modulepreload" href="/_app/pages/docs/_...1_getting-started/_...2_setup.md-fa568fd3.js">
+  </head>
+  <body>
+    <div>
+
+
+
+
+<div class="kit-docs bg-gray-body min-h-full min-w-full h-full transition-transform duration-150 ease-out" style="font-family: var(--kd-font-family-sans, inherit);"><div class="fixed top-0 z-30 w-full flex-none transform-gpu transition-transform duration-150 ease-out supports-backdrop-blur:bg-white/60 bg-gray-200/95 backdrop-blur dark:bg-gray-800/60 translate-y-0" style="border-bottom: var(--kd-navbar-border-bottom, 1px solid var(--kd-color-gray-divider));"><div class="1200:py-5 flex w-full flex-col items-center justify-center px-5 py-4 992:min-h-[5rem] mx-auto" style="max-width: var(--kd-navbar-max-width, 1440px);"><div class="flex w-full items-center"><div slot="navbar-left"><div class="logo">
+  <a class="group transform-gpu text-lg font-medium transition-transform hover:scale-105" href="/docs">
+    <span class="inline-block transform transition-transform duration-100 group-hover:translate-x-0"><div class="logo-content svelte-1i7tfp4"><span class="svelte-1i7tfp4">Conjure</span></div></span>
+    </a></div></div>
+        
+
+    <div class="flex-1"></div>
+
+    <div class="992:hidden -mr-2 flex items-center"><input type="text" placeholder="// TODO Search..." slot="search" class="search">
+
+      <div class="relative inline-block text-left not-prose"><button id="popover-button-2" type="button" class="inline-flex w-full justify-center rounded-md px-4 py-2 text-lg font-medium text-gray-soft hover:text-gray-inverse" aria-controls="popover-2" aria-expanded="false" aria-haspopup="true"><svg preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" width="30" height="30"><!-- HTML_TAG_START --><path fill="currentColor" d="M18 18v2H6v-2h12zm3-7v2H3v-2h18zm-3-7v2H6V4h12z"/><!-- HTML_TAG_END --></svg>
+          <span class="sr-only">Main navigation menu</span>
+        </button>
+
+  <div class="fixed top-0 left-0 bg-black/40 backdrop-blur-sm dark:bg-gray-700/80 transition-opacity duration-75 pointer-events-auto z-40 w-screen h-screen opacity-0 invisible"></div>
+
+  <div hidden></div>
+
+</div></div>
+
+    <div class="992:flex 992:items-center hidden"><nav><ul class="flex items-center space-x-8 text-lg font-medium"><li class="mt-4 first:mt-0 992:mt-0"><a class="border-b hover:border-b-2 border-brand text-gray-inverse" href="/docs">Documentation</a></li></ul></nav>
+
+      
+        
+
+      <div class="border-gray-divider ml-6 mr-2.5 h-7 w-2 border-l-[1.5px]"></div>
+
+      <div class="hidden 992:flex items-center"><div class="socials" slot="navbar-right-alt"><a class="relative flex items-center text-gray-soft hover:text-gray-inverse border-0" href="https://github.com/Vilsol/conjure" target="_blank"><svg preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" width="28" height="28" class=""><!-- HTML_TAG_START --><path fill="currentColor" d="M12 2C6.475 2 2 6.475 2 12a9.994 9.994 0 0 0 6.838 9.488c.5.087.687-.213.687-.476c0-.237-.013-1.024-.013-1.862c-2.512.463-3.162-.612-3.362-1.175c-.113-.288-.6-1.175-1.025-1.413c-.35-.187-.85-.65-.013-.662c.788-.013 1.35.725 1.538 1.025c.9 1.512 2.338 1.087 2.912.825c.088-.65.35-1.087.638-1.337c-2.225-.25-4.55-1.113-4.55-4.938c0-1.088.387-1.987 1.025-2.688c-.1-.25-.45-1.275.1-2.65c0 0 .837-.262 2.75 1.026a9.28 9.28 0 0 1 2.5-.338c.85 0 1.7.112 2.5.337c1.912-1.3 2.75-1.024 2.75-1.024c.55 1.375.2 2.4.1 2.65c.637.7 1.025 1.587 1.025 2.687c0 3.838-2.337 4.688-4.562 4.938c.362.312.675.912.675 1.85c0 1.337-.013 2.412-.013 2.75c0 .262.188.574.688.474A10.016 10.016 0 0 0 22 12c0-5.525-4.475-10-10-10z"/><!-- HTML_TAG_END --></svg>
+  <span class="sr-only">GitHub</span>
+  </a></div>
+        
+        <div class="relative inline-block text-left not-prose"><button id="menu-button-2" type="button" class="inline-flex w-full justify-center rounded-md px-4 py-2 text-lg font-medium text-gray-soft hover:text-gray-inverse" aria-controls="menu-2" aria-expanded="false" aria-haspopup="true"><svg preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" width="1.2em" height="1.2em" class="h-6 w-6"><!-- HTML_TAG_START --><path fill="currentColor" d="M12 18a6 6 0 1 1 0-12a6 6 0 0 1 0 12zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636L5.636 7.05L3.515 4.93zM16.95 18.364l1.414-1.414l2.121 2.121l-1.414 1.414l-2.121-2.121zm2.121-14.85l1.414 1.415l-2.121 2.121l-1.414-1.414l2.121-2.121zM5.636 16.95l1.414 1.414l-2.121 2.121l-1.414-1.414l2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"/><!-- HTML_TAG_END --></svg>
+    <span class="sr-only">Color Scheme</span>
+  </button>
+
+  <div hidden></div>
+
+</div></div></div></div>
+
+  <div class="border-gray-divider 992:hidden flex w-full items-center mt-4 pt-4 border-t"><button id="main-sidebar-button" type="button" class="text-gray-soft hover:text-gray-inverse -ml-3 inline-flex justify-center rounded-md px-4 py-2 text-sm font-medium" aria-controls="main-sidebar" aria-expanded="false" aria-haspopup="true"><span class="sr-only">Open main sidebar</span>
+                  <svg preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" width="28" height="28"><!-- HTML_TAG_START --><path fill="currentColor" d="M21 18v2H3v-2h18zM17.05 3.55L22 8.5l-4.95 4.95v-9.9zM12 11v2H3v-2h9zm0-7v2H3V4h9z"/><!-- HTML_TAG_END --></svg></button>
+
+              <ol class="text-md text-gray-soft mt-px ml-1 flex items-center whitespace-nowrap leading-6"><li class="flex items-center">Getting Started
+                      <svg preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" width="16" height="16" class="mx-1"><!-- HTML_TAG_START --><path fill="currentColor" d="m13.172 12l-4.95-4.95l1.414-1.414L16 12l-6.364 6.364l-1.414-1.414z"/><!-- HTML_TAG_END --></svg></li>
+                  <li class="truncate font-semibold text-slate-900 dark:text-slate-200">Setup</li></ol></div>
+
+          
+        </div></div>
+
+  <div class="mx-auto w-full flex flex-row min-h-full 992:pt-20 z-20 pt-40" style="max-width: var(--kd-content-max-width, 1440px);"><aside id="main-sidebar" class="sidebar self-start fixed top-0 left-0 transform bg-gray-body z-50 border-gray-divider border-r pb-8 px-7 -translate-x-full transform transition-transform duration-200 ease-out will-change-transform min-w-[90vw] 768:min-w-[70vw] max-w-screen max-h-screen min-h-screen  992:px-5 992:translate-x-0 922:block 992:sticky 992:z-0 992:w-[17rem] 992:min-w-[17rem] overflow-y-auto 1460:pl-5 992:top-20 992:min-h-[calc(100vh-5rem)] 992:max-h-[calc(100vh-5rem)]" role="dialog" aria-modal="true" style=""><div class="992:hidden sticky top-0 left-0 flex items-center"><div class="flex-1"></div>
+    <button class="text-gray-soft hover:text-gray-inverse p-4 -mx-6 pointer-events-none"><svg preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" width="24" height="24"><!-- HTML_TAG_START --><path fill="currentColor" d="m12 10.586l4.95-4.95l1.414 1.414l-4.95 4.95l4.95 4.95l-1.414 1.414l-4.95-4.95l-4.95 4.95l-1.414-1.414l4.95-4.95l-4.95-4.95L7.05 5.636z"/><!-- HTML_TAG_END --></svg>
+      <span class="sr-only">Close sidebar</span></button></div>
+
+  <nav class="992:px-1"><div class="992:block pointer-events-none sticky top-0 -ml-0.5 hidden min-h-[80px]"><div class="h-6 bg-white dark:bg-gray-800"></div>
+        <div class="pointer-events-auto relative bg-white dark:bg-gray-800"><input type="text" placeholder="// TODO Search..." slot="search" class="search">
+        </div>
+        <div class="h-8 bg-gradient-to-b from-white dark:from-gray-800"></div></div>
+
+    
+
+    <ul class="pb-28 992:pb-0">
+        <li class="992:mt-10 mt-12 first:mt-0"><h5 class="text-gray-strong 992:mb-3 mb-8 text-lg font-semibold">Getting Started
+            </h5>
+          <ul class="border-gray-divider space-y-3 border-l"><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/getting-started/introduction" style="">
+                  Introduction
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 text-brand font-semibold" href="/docs/getting-started/setup" style="border-color: var(--kd-sidebar-border-active);">
+                  Setup
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/getting-started/example" style="">
+                  Example
+                  </a>
+              </li></ul>
+        </li>
+        <li class="992:mt-10 mt-12 first:mt-0"><h5 class="text-gray-strong 992:mb-3 mb-8 text-lg font-semibold">Configuration
+            </h5>
+          <ul class="border-gray-divider space-y-3 border-l"><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/configuration/generator" style="">
+                  Generator
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/configuration/async" style="">
+                  Async
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/configuration/element" style="">
+                  Element
+                  </a>
+              </li></ul>
+        </li>
+        <li class="992:mt-10 mt-12 first:mt-0"><h5 class="text-gray-strong 992:mb-3 mb-8 text-lg font-semibold">Components
+            </h5>
+          <ul class="border-gray-divider space-y-3 border-l"><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/components/form" style="">
+                  Form
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/components/wrapper" style="">
+                  Wrapper
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/components/label" style="">
+                  Label
+                  </a>
+              </li></ul>
+        </li>
+        <li class="992:mt-10 mt-12 first:mt-0"><h5 class="text-gray-strong 992:mb-3 mb-8 text-lg font-semibold">Elements
+            </h5>
+          <ul class="border-gray-divider space-y-3 border-l"><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/elements/input" style="">
+                  Input
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/elements/select" style="">
+                  Select
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/elements/textarea" style="">
+                  Textarea
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/elements/button" style="">
+                  Button
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/elements/meter" style="">
+                  Meter
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/elements/progress" style="">
+                  Progress
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/elements/radio-group" style="">
+                  Radio Group
+                  </a>
+              </li></ul>
+        </li>
+        <li class="992:mt-10 mt-12 first:mt-0"><h5 class="text-gray-strong 992:mb-3 mb-8 text-lg font-semibold">Meta Elements
+            </h5>
+          <ul class="border-gray-divider space-y-3 border-l"><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/meta-elements/header" style="">
+                  Header
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/meta-elements/array" style="">
+                  Array
+                  </a>
+              </li><li class="first:mt-6"><a class="992:py-1.5 -ml-px flex items-center border-l-2 py-2 pl-4 hover:border-gray-inverse text-gray-soft hover:text-gray-inverse border-transparent font-normal" href="/docs/meta-elements/object" style="">
+                  Object
+                  </a>
+              </li></ul>
+        </li></ul>
+
+    
+        </nav></aside>
+
+<div class="992:hidden z-40"><div class="fixed top-0 left-0 bg-black/40 backdrop-blur-sm dark:bg-gray-700/80 transition-opacity duration-75 pointer-events-auto z-40 w-screen h-screen opacity-0 invisible"></div></div>
+
+    <main class="w-full overflow-x-hidden 992:min-h-[calc(100vh-5rem)] min-h-[calc(100vh-10rem)] px-8 992:px-16 max-w-[85ch] pt-10">
+
+      <article class="markdown prose dark:prose-invert z-10"><p class="text-brand mb-3.5 text-[15px] font-semibold leading-6">Getting Started</p>
+
+          
+
+<h1>Setup</h1>
+<p>Setup</p></article>
+
+      <hr class="border-gray-divider mt-20">
+
+        <div class="992:text-xl flex items-center pt-12 pb-20 text-lg font-semibold text-gray-300"><div class="mb-4 flex flex-col items-start"><span class="text-gray-inverse ml-3 mb-4 inline-block">Previous</span>
+              
+  <a class="group transform-gpu text-lg font-medium transition-transform hover:scale-105 hover:text-gray-inverse" href="/docs/getting-started/introduction" sveltekit:prefetch><span class="opacity-0 transition-opacity duration-100 group-hover:visible group-hover:opacity-100 inline-block">&lt;-</span>
+    <span class="inline-block transform transition-transform duration-100 group-hover:translate-x-0 -translate-x-3 ">Introduction</span>
+    </a></div>
+
+          <div class="ml-auto mb-4 flex flex-col items-end"><span class="text-gray-inverse mr-3 mb-4 inline-block">Next</span>
+              
+  <a class="group transform-gpu text-lg font-medium transition-transform hover:scale-105 hover:text-gray-inverse" href="/docs/getting-started/example" sveltekit:prefetch>
+    <span class="inline-block transform transition-transform duration-100 group-hover:translate-x-0 translate-x-2">Example</span>
+    <span class="opacity-0 transition-opacity duration-100 group-hover:visible group-hover:opacity-100 inline-block">-&gt;</span></a></div></div>
+
+      </main>
+
+    <div class="992:flex-1"></div>
+
+    </div></div>
+
+
+		<script type="module" data-hydrate="1u68rri">
+		import { start } from "/_app/start-8e0480f4.js";
+		start({
+			target: document.querySelector('[data-hydrate="1u68rri"]').parentNode,
+			paths: {"base":"","assets":""},
+			session: {},
+			route: true,
+			spa: false,
+			trailing_slash: "never",
+			hydrate: {
+				status: 200,
+				error: null,
+				nodes: [
+					import("/_app/pages/__layout-kit-docs.svelte-53e4db1e.js"),
+						import("/_app/pages/docs/__layout@kit-docs.svelte-37f82772.js"),
+						import("/_app/pages/docs/_...1_getting-started/_...2_setup.md-fa568fd3.js")
+				],
+				params: (function(a){return {"1":a,"2":a}}("")),
+				routeId: "docs/[...1]getting-started/[...2]setup"
+			}
+		});
+	</script><script type="application/json" sveltekit:data-type="data" sveltekit:data-url="/kit-docs/docs_getting-started_setup.meta.json">{"status":200,"statusText":"","headers":{"content-type":"application/json; charset=utf-8"},"body":"{\"excerpt\":\"\",\"headers\":[],\"title\":\"Setup\",\"description\":\"Setup\",\"frontmatter\":{\"title\":\"Setup\",\"description\":\"Setup\"},\"lastUpdated\":1650778479620}"}</script>
+	<script type="application/json" sveltekit:data-type="data" sveltekit:data-url="/kit-docs/docs.sidebar.json">{"status":200,"statusText":"","headers":{"content-type":"application/json; charset=utf-8"},"body":"{\"links\":{\"Getting Started\":[{\"title\":\"Introduction\",\"slug\":\"/docs/getting-started/introduction\"},{\"title\":\"Setup\",\"slug\":\"/docs/getting-started/setup\"},{\"title\":\"Example\",\"slug\":\"/docs/getting-started/example\"}],\"Configuration\":[{\"title\":\"Generator\",\"slug\":\"/docs/configuration/generator\"},{\"title\":\"Async\",\"slug\":\"/docs/configuration/async\"},{\"title\":\"Element\",\"slug\":\"/docs/configuration/element\"}],\"Components\":[{\"title\":\"Form\",\"slug\":\"/docs/components/form\"},{\"title\":\"Wrapper\",\"slug\":\"/docs/components/wrapper\"},{\"title\":\"Label\",\"slug\":\"/docs/components/label\"}],\"Elements\":[{\"title\":\"Input\",\"slug\":\"/docs/elements/input\"},{\"title\":\"Select\",\"slug\":\"/docs/elements/select\"},{\"title\":\"Textarea\",\"slug\":\"/docs/elements/textarea\"},{\"title\":\"Button\",\"slug\":\"/docs/elements/button\"},{\"title\":\"Meter\",\"slug\":\"/docs/elements/meter\"},{\"title\":\"Progress\",\"slug\":\"/docs/elements/progress\"},{\"title\":\"Radio Group\",\"slug\":\"/docs/elements/radio-group\"}],\"Meta Elements\":[{\"title\":\"Header\",\"slug\":\"/docs/meta-elements/header\"},{\"title\":\"Array\",\"slug\":\"/docs/meta-elements/array\"},{\"title\":\"Object\",\"slug\":\"/docs/meta-elements/object\"}]}}"}</script></div>
+  </body>
+</html>
