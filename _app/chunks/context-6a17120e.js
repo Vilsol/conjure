@@ -1,0 +1,1 @@
+import"./index-b3e2d4c5.js";import{B as a,a as t}from"./base-6ff9851a.js";const m=a.withDefaultParam("input","class","demo-input").withDefaultParam("select","class","demo-input").withDefaultParam("textarea","class","demo-input");t("class","my-3");export{m as D};
