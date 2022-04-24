@@ -17,6 +17,7 @@
 :root {
   --kd-color-brand-rgb: 249, 115, 22;
   --kd-prose-pre-bg: rgb(40, 40, 40) !important;
+  --kd-code-fence-top-bar-bg: transparent !important;
 }
 
 :root.dark {
@@ -27,11 +28,6 @@
   margin: 0;
 }
 
-/* Workaround for https://github.com/svelteness/kit-docs/issues/17 */
-.kit-docs .code-fence > div {
-  background-color: transparent !important;
-}
-
 .kit-docs main input,
 .kit-docs .search {
   @apply rounded px-2.5 py-1 text-base placeholder-neutral-500 bg-transparent w-full;
@@ -40,4 +36,20 @@
 .kit-docs main input:focus,
 .kit-docs .search:focus {
   @apply ring-orange-500 border-orange-500 ring-offset-orange-500 border-orange-500;
+}
+
+.kit-docs main {
+  @apply max-w-full;
+}
+
+#main-sidebar ul li {
+  @apply mt-8;
+}
+
+#main-sidebar ul li:first-child {
+  @apply mt-0;
+}
+
+#main-sidebar ul li ul li {
+  @apply mt-1;
 }

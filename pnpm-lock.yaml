@@ -9,7 +9,7 @@ specifiers:
   '@iconify-json/ri': ^1.1.1
   '@sveltejs/adapter-static': ^1.0.0-next.29
   '@sveltejs/kit': ^1.0.0-next.308
-  '@svelteness/kit-docs': ^0.18.0
+  '@svelteness/kit-docs': ^0.18.4
   '@tailwindcss/forms': ^0.5.0
   '@tailwindcss/typography': ^0.5.2
   '@typescript-eslint/eslint-plugin': ^5.18.0
@@ -52,7 +52,7 @@ devDependencies:
   '@iconify-json/ri': 1.1.1
   '@sveltejs/adapter-static': 1.0.0-next.29
   '@sveltejs/kit': 1.0.0-next.308_svelte@3.46.6
-  '@svelteness/kit-docs': 0.18.0_svelte@3.46.6
+  '@svelteness/kit-docs': 0.18.4_svelte@3.46.6
   '@tailwindcss/forms': 0.5.0_tailwindcss@3.0.23
   '@tailwindcss/typography': 0.5.2_tailwindcss@3.0.23
   '@typescript-eslint/eslint-plugin': 5.18.0_a07dca3bdfc4bfa60f4dda0c1f9e3287
@@ -698,9 +698,9 @@ packages:
       - supports-color
     dev: true
 
-  /@svelteness/kit-docs/0.18.0_svelte@3.46.6:
+  /@svelteness/kit-docs/0.18.4_svelte@3.46.6:
     resolution:
-      { integrity: sha512-Zcg0pllG7EtTe0GmfB1uoliSvs6DNv96q5yD5IvClDY9M4IP5js5s0dQ+xLd0sZWSWQ2/ERrupFqXZYBCdJBAg== }
+      { integrity: sha512-REWfNoG+1ndSxw7Ljr6Htf0xnjvaoKXo8McP8fMs8Nz1UrKY3OnL3Zq92ksSUwj7HsyzVRcZuG5S8zoMDvkpBQ== }
     engines: { node: '>=14.19.0' }
     dependencies:
       '@types/lru-cache': 7.6.1
