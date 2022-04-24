@@ -5,10 +5,21 @@
     <meta name="description" content="" />
     <link rel="icon" href="%svelte.assets%/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>svelte-form-gen Demo</title>
+
+    <script>
+      const key = 'svelteness::color-scheme';
+      const scheme = localStorage[key];
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (scheme === 'dark' || (scheme !== 'light' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
+
     %svelte.head%
   </head>
-  <body class="bg-neutral-800 text-white">
+  <body>
     <div>%svelte.body%</div>
   </body>
 </html>

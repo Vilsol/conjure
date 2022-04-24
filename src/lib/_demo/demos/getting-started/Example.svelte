@@ -1,7 +1,8 @@
 <script lang="ts">
   import { Form } from '$lib';
-  import { DemoBase } from '$lib/_demo/context';
   import * as zod from 'zod';
+
+  import { DemoBase } from '../../context';
 
   const form = DemoBase.newForm([
     {
@@ -100,9 +101,7 @@
   };
 </script>
 
-<div class="w-1/5 px-4 py-2">
-  <Form {form} />
-</div>
+<Form {form} />
 
 <button on:click={() => setName('John')} class="bg-neutral-700 px-5 py-2 rounded"> Set name to John </button>
 

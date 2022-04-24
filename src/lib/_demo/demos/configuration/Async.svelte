@@ -1,7 +1,8 @@
 <script lang="ts">
   import { Form } from '$lib';
-  import { DemoBase } from '$lib/_demo/context';
   import * as zod from 'zod';
+
+  import { DemoBase } from '../../context';
 
   const API_BASE = 'https://www.dnd5eapi.co/api';
 
@@ -105,9 +106,7 @@
   $: featureData = getFeature($data);
 </script>
 
-<div class="w-1/5 py-2">
-  <Form {form} />
-</div>
+<Form {form} />
 
 {#await featureData then feature}
   {#if feature}

@@ -1,10 +1,12 @@
 import adapter from '@sveltejs/adapter-static';
+import { kitDocsPlugin } from '@svelteness/kit-docs/node';
 import preprocess from 'svelte-preprocess';
+import Icons from 'unplugin-icons/vite';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  // Consult https://github.com/sveltejs/svelte-preprocess
-  // for more information about preprocessors
+  extensions: ['.svelte', '.md'],
+
   preprocess: preprocess({
     postcss: true
   }),
@@ -21,11 +23,21 @@ const config = {
     vite: {
       ssr: {
         noExternal: ['@felte/common']
-      }
+      },
+      plugins: [
+        Icons({ compiler: 'svelte' }),
+        kitDocsPlugin({
+          shiki: {
+            theme: 'one-dark-pro'
+          }
+        })
+      ]
     },
 
     prerender: {
-      default: true
+      default: true,
+      entries: ['*'],
+      onError: 'continue'
     }
   }
 };

@@ -4,7 +4,7 @@
   /** @type {import('./index).Load} */
   export async function load() {
     return {
-      redirect: base + '/getting-started/installation',
+      redirect: base + '/docs/getting-started/introduction',
       status: 302
     };
   }
