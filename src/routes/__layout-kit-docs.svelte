@@ -21,6 +21,7 @@
   import type { MarkdownMeta, NavbarConfig, ResolvedSidebarConfig } from '@svelteness/kit-docs';
   import { Button, KitDocsLayout, SocialLink } from '@svelteness/kit-docs';
   import { KitDocs, createSidebarContext } from '@svelteness/kit-docs';
+  import SearchIcon from '~icons/ri/search-line';
   import { page } from '$app/stores';
 
   export let meta: MarkdownMeta = null;
@@ -74,7 +75,12 @@
       <SocialLink type="gitHub" href="https://github.com/Vilsol/conjure" />
     </div>
 
-    <input type="text" placeholder="// TODO Search..." slot="search" class="search" />
+    <div slot="search">
+      <input type="text" placeholder="// TODO Search..." class="search hidden md:block" />
+      <div class="search md:hidden">
+        <SearchIcon />
+      </div>
+    </div>
 
     <slot />
   </KitDocsLayout>

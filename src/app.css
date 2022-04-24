@@ -33,11 +33,11 @@
 }
 
 .kit-docs main input,
-.kit-docs #main-sidebar .search {
+.kit-docs .search {
   @apply rounded px-2.5 py-1 text-base placeholder-neutral-500 bg-transparent w-full;
 }
 
 .kit-docs main input:focus,
-.kit-docs #main-sidebar .search:focus {
+.kit-docs .search:focus {
   @apply ring-orange-500 border-orange-500 ring-offset-orange-500 border-orange-500;
 }
