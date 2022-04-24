@@ -32,8 +32,6 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          SVELTE_BASE_PATH: '/conjure'
 
       - name: Deploy to pages
         uses: JamesIves/github-pages-deploy-action@4.1.0
