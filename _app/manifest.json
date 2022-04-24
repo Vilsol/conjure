@@ -1,6 +1,6 @@
 {
   ".svelte-kit/runtime/client/start.js": {
-    "file": "start-8e0480f4.js",
+    "file": "start-889e5070.js",
     "src": ".svelte-kit/runtime/client/start.js",
     "isEntry": true,
     "imports": [
@@ -32,6 +32,7 @@
       "src/routes/docs/[...5]meta-elements/[...1]header.md",
       "src/routes/docs/[...5]meta-elements/[...2]array.md",
       "src/routes/docs/[...5]meta-elements/[...3]object.md",
+      "src/routes/docs/index.svelte",
       "src/routes/index.svelte"
     ]
   },
@@ -54,7 +55,7 @@
     ]
   },
   "src/routes/__layout-kit-docs.svelte": {
-    "file": "pages/__layout-kit-docs.svelte-53e4db1e.js",
+    "file": "pages/__layout-kit-docs.svelte-355bab4b.js",
     "src": "src/routes/__layout-kit-docs.svelte",
     "isEntry": true,
     "isDynamicEntry": true,
@@ -65,7 +66,7 @@
       "_singletons-770e68ce.js"
     ],
     "css": [
-      "assets/pages/__layout-kit-docs.svelte-d7a34ca6.css"
+      "assets/pages/__layout-kit-docs.svelte-182d6ff5.css"
     ],
     "assets": [
       "assets/Inter-VF.roman-latin-1b58736b.woff2",
@@ -301,6 +302,16 @@
       "_index-b3e2d4c5.js",
       "_scroll-1a9e7d58.js",
       "_singletons-770e68ce.js"
+    ]
+  },
+  "src/routes/docs/index.svelte": {
+    "file": "pages/docs/index.svelte-c17c89b8.js",
+    "src": "src/routes/docs/index.svelte",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_index-b3e2d4c5.js",
+      "_paths-396f020f.js"
     ]
   },
   "src/routes/index.svelte": {
