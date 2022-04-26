@@ -2,18 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.demo-input {
-  @apply px-3 py-2 block w-full rounded-md sm:text-sm;
-  @apply bg-neutral-700 border shadow-sm border-slate-300 placeholder-slate-300;
-
-  @apply invalid:border-pink-500 invalid:text-pink-600;
-
-  @apply disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none;
-
-  @apply focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1;
-  @apply focus:invalid:border-pink-500 focus:invalid:ring-pink-500;
-}
-
 :root {
   --kd-color-brand-rgb: 249, 115, 22;
   --kd-prose-pre-bg: rgb(40, 40, 40) !important;
@@ -28,14 +16,12 @@
   margin: 0;
 }
 
-.kit-docs main input,
 .kit-docs .search {
-  @apply rounded px-2.5 py-1 text-base placeholder-neutral-500 bg-transparent w-full;
+  @apply rounded px-2.5 py-1 text-base placeholder-neutral-500 bg-transparent w-full placeholder:italic;
 }
 
-.kit-docs main input:focus,
 .kit-docs .search:focus {
-  @apply ring-orange-500 border-orange-500 ring-offset-orange-500 border-orange-500;
+  @apply ring-orange-500 border-orange-500 ring-offset-orange-500;
 }
 
 .kit-docs main {
@@ -52,4 +38,34 @@
 
 #main-sidebar ul li ul li {
   @apply mt-1;
+}
+
+main .conjure-label {
+  @apply text-orange-500;
+}
+
+main .conjure-wrapper {
+  @apply my-3;
+}
+
+.kit-docs main input,
+.kit-docs main select,
+.kit-docs main textarea {
+  @apply px-3 py-2 mt-1 block w-full rounded-md sm:text-sm;
+  @apply bg-transparent border shadow-sm border-slate-300 placeholder:text-neutral-500 text-white;
+
+  @apply invalid:border-red-500 invalid:text-red-600;
+
+  @apply disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none;
+
+  @apply focus:outline-none focus:border-orange-500 focus:ring-orange-500 focus:ring-offset-orange-500 focus:ring-1;
+  @apply focus:invalid:border-red-500 focus:invalid:ring-red-500;
+}
+
+.kit-docs main select option {
+  background: var(--kd-color-gray-body);
+}
+
+.demo-button {
+  @apply bg-neutral-700 px-5 py-2 rounded text-white;
 }

@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { Form } from '$lib';
+  import { Base, Form } from '$lib';
   import { get, writable } from 'svelte/store';
   import * as zod from 'zod';
 
-  import { DemoBase } from '../../context';
-
   const count = writable(1);
 
-  const form = DemoBase.newForm([
+  const form = Base.newForm([
     {
       type: 'array',
       name: 'aliases',
@@ -24,7 +22,7 @@
       text: '+',
       click: () => count.set(get(count) + 1),
       params: {
-        class: 'px-3 py-1 bg-green-700 text-white rounded'
+        class: 'px-3 py-1 bg-green-700 text-white rounded mr-1'
       }
     },
     {
@@ -33,7 +31,7 @@
       click: () => count.set(get(count) - 1),
       params: () => {
         const base = {
-          class: 'px-3 py-1 bg-red-700 text-white rounded disabled:bg-red-900'
+          class: 'px-3 py-1 bg-red-700 text-white rounded disabled:bg-neutral-600'
         };
 
         if (get(count) <= 0) {

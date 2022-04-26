@@ -1,5 +1,5 @@
 {
-  "name": "svelte-form-gen",
+  "name": "conjure-svelte",
   "version": "0.0.1",
   "scripts": {
     "dev": "run-p -r dev:serve check:watch lint:watch",

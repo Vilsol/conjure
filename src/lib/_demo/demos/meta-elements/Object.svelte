@@ -1,10 +1,8 @@
 <script lang="ts">
-  import { Form } from '$lib';
+  import { Base, Form } from '$lib';
   import * as zod from 'zod';
 
-  import { DemoBase } from '../../context';
-
-  const form = DemoBase.newForm([
+  const form = Base.newForm([
     {
       type: 'object',
       name: 'user',

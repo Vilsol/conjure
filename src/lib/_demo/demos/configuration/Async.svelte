@@ -1,49 +1,22 @@
 <script lang="ts">
-  import { Form } from '$lib';
+  import { Base, Form } from '$lib';
   import * as zod from 'zod';
 
-  import { DemoBase } from '../../context';
+  import { getClasses, getFeature, getFeatures } from '../../dnd';
 
-  const API_BASE = 'https://www.dnd5eapi.co/api';
-
-  type ListResponse = {
-    results: {
-      name: string;
-      index: string;
-    }[];
-  };
-
-  type Feature = {
-    name: string;
-    level: number;
-    desc: string;
-  };
-
-  let classesCache: ListResponse;
-
-  let classFeatureCache: {
-    [key: string]: ListResponse;
-  } = {};
-
-  let featureCache: { [key: string]: Feature } = {};
-
-  const form = DemoBase.newForm([
+  const form = Base.newForm([
     {
       type: 'select',
       name: 'class',
       label: 'Class',
       schema: zod.string(),
       options: async () => {
-        if (!classesCache) {
-          classesCache = await fetch(API_BASE + '/classes').then((data) => data.json());
-        }
-
         return [
           {
             label: 'Select class...',
             value: ''
           },
-          ...classesCache.results.map((clazz) => {
+          ...(await getClasses()).results.map((clazz) => {
             return {
               label: clazz.name,
               value: clazz.index
@@ -55,7 +28,7 @@
     {
       type: 'select',
       name: 'feature',
-      label: 'Spell',
+      label: 'Feature',
       schema: zod.string(),
       hide: (data) => {
         return !('class' in data && data.class);
@@ -65,18 +38,12 @@
           return [];
         }
 
-        if (!(data.class in classFeatureCache)) {
-          classFeatureCache[data.class] = await fetch(API_BASE + '/classes/' + data.class + '/features').then((data) =>
-            data.json()
-          );
-        }
-
         return [
           {
             label: 'Select feature...',
             value: ''
           },
-          ...classFeatureCache[data.class].results.map((feature) => {
+          ...(await getFeatures(data.class)).results.map((feature) => {
             return {
               label: feature.name,
               value: feature.index
@@ -89,21 +56,7 @@
 
   const data = form.getData();
 
-  const getFeature = async (data: { feature?: unknown }): Promise<Feature> => {
-    const feature = data.feature as string;
-
-    if (feature) {
-      if (!(feature in featureCache)) {
-        featureCache[feature] = await fetch(API_BASE + '/features/' + feature).then((data) => data.json());
-      }
-
-      return featureCache[feature];
-    }
-
-    return undefined;
-  };
-
-  $: featureData = getFeature($data);
+  $: featureData = getFeature($data.feature as string);
 </script>
 
 <Form {form} />
@@ -112,11 +65,12 @@
   {#if feature}
     <div>
       <strong>Name: </strong>
-      {feature.name}<br />
+      <span class="text-neutral-300">{feature.name}</span><br />
       <strong>Level: </strong>
-      {feature.level}<br />
-      <strong>Description:</strong>
-      {feature.desc}
+      <span class="text-neutral-300">{feature.level}</span><br />
+      {#each feature.desc as line}
+        <p class="text-neutral-300">{line}</p>
+      {/each}
     </div>
   {/if}
 {/await}

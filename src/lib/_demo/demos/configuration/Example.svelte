@@ -1,14 +1,9 @@
 <script lang="ts">
-  import { Form } from '$lib';
+  import { Base, Form } from '$lib';
+  import { get } from 'svelte/store';
   import * as zod from 'zod';
 
-  import { DemoBase } from '../../context';
-
-  const form = DemoBase.newForm([
-    {
-      type: 'header',
-      text: 'Sample Form'
-    },
+  const form = Base.newForm([
     {
       type: 'input',
       name: 'name',
@@ -42,7 +37,8 @@
       label: 'Password',
       schema: zod.string().min(16),
       params: {
-        type: 'password'
+        type: 'password',
+        placeholder: 'Password'
       }
     },
     {
@@ -51,7 +47,8 @@
       label: 'Level',
       schema: zod.number().min(3).max(100),
       params: {
-        type: 'number'
+        type: 'number',
+        placeholder: 'Level'
       }
     },
     {
@@ -81,30 +78,36 @@
           );
         });
       }
+    },
+    {
+      type: 'button',
+      text: 'Set name to John',
+      click: () =>
+        data.set({
+          ...get(data),
+          name: 'John'
+        }),
+      params: {
+        class: 'demo-button mr-1'
+      }
+    },
+    {
+      type: 'button',
+      text: 'Set level to 10',
+      click: () =>
+        data.set({
+          ...get(data),
+          level: 10
+        }),
+      params: {
+        class: 'demo-button'
+      }
     }
   ] as const);
 
   const data = form.getData();
-
-  const setName = (name: string) => {
-    data.set({
-      ...$data,
-      name
-    });
-  };
-
-  const setLevel = (level: number) => {
-    data.set({
-      ...$data,
-      level
-    });
-  };
 </script>
 
 <Form {form} />
-
-<button on:click={() => setName('John')} class="bg-neutral-700 px-5 py-2 rounded"> Set name to John </button>
-
-<button on:click={() => setLevel(10)} class="bg-neutral-700 px-5 py-2 rounded"> Set level to 10 </button>
 
 <pre>{JSON.stringify($data, null, 4)}</pre>
