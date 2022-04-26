@@ -9,6 +9,7 @@
 
   export let definition: InputElement;
   export let form: FormInstance<FormGenerator, Readonly<BaseElement<string>[]>>;
+  export let prefix: string;
 
   $: realParams = form.resolveParams(definition);
 </script>
@@ -20,7 +21,7 @@
     </svelte:component>
   {/if}
 
-  <input type={$realParams.type ?? 'text'} name={definition.name} {...$realParams} />
+  <input type={$realParams.type ?? 'text'} name={prefix + definition.name} {...$realParams} />
 
   <ValidationMessage for={definition.name} let:messages={message}>
     <span>{message || ''}</span>

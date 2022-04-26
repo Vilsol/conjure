@@ -1,5 +1,7 @@
 <script lang="ts" context="module">
-  const params = {};
+  const params = {
+    class: 'conjure-label'
+  };
   export const setParam = (param: string, value: unknown) => {
     params[param] = value;
   };

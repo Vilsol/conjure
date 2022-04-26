@@ -8,12 +8,24 @@ import type { ZodObject, ZodRawShape, ZodTypeAny } from 'zod';
 import * as zod from 'zod';
 
 import type { FormGenerator } from './generator';
-import type { BaseElement, BaseInput, Resolvable } from './types';
+import type { ArrayElement, BaseElement, ObjectElement, Resolvable } from './types';
 import { fromZod } from './validators';
 
+// TODO Replace unknown with calculated value somehow E[number]['value']
+// TODO Figure out why this falls back to unknown with more than one element
+
+type SubRemap<T> = T extends ObjectElement<BaseElement<string>>
+  ? ReMapper<T['elements']>
+  : T extends ArrayElement<BaseElement<string>>
+  ? T['element'] extends Omit<ObjectElement<BaseElement<string>>, 'name'>
+    ? ReMapper<T['element']['elements']>[]
+    : unknown[]
+  : unknown;
+
 type ReMapper<E extends Readonly<BaseElement<string>[]>> = {
-  // TODO Replace unknown with calculated value somehow E[number]['value']
-  [key in Extract<E[number], BaseInput<string>> as key['name']]: unknown;
+  [key in Extract<E[number], { name: string }> as key['name']]: E[number] extends { name: string }
+    ? SubRemap<E[number]>
+    : never;
 };
 
 export class FormInstance<T extends FormGenerator, E extends Readonly<BaseElement<string>[]>> {
@@ -89,6 +101,8 @@ export class FormInstance<T extends FormGenerator, E extends Readonly<BaseElemen
             });
           });
         });
+      } else if (typeof params === 'object' && 'subscribe' in params) {
+        return params as Readable<{ [key: string]: string }>;
       } else {
         Promise.resolve(params).then((resolvedParams) => {
           result.set({
@@ -113,6 +127,8 @@ export class FormInstance<T extends FormGenerator, E extends Readonly<BaseElemen
           result.set(resolvedParams);
         });
       });
+    } else if (typeof field === 'object' && 'subscribe' in field) {
+      return field;
     } else {
       Promise.resolve(field).then((resolvedParams) => {
         result.set(resolvedParams);

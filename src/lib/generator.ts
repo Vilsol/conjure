@@ -1,5 +1,5 @@
 import { FormInstance } from '$lib';
-import type { BaseElement } from '$lib/types';
+import type { ArrayElement, BaseElement, ObjectElement } from '$lib/types';
 import type { ValidatorDefinition } from '$lib/validators';
 
 interface TypeRegistryElement<P> {
@@ -74,7 +74,9 @@ export class FormGenerator<T extends BaseElement<string> = never> {
    * Create a new form instance of provided schema
    * @param elements Elements of the schema
    */
-  newForm<E extends Readonly<T[]>>(elements: E): FormInstance<FormGenerator<T>, E> {
+  newForm<E extends Readonly<(T | ArrayElement<T> | ObjectElement<T>)[]>>(
+    elements: E
+  ): FormInstance<FormGenerator<T>, E> {
     // TODO Validate no duplicate names
     return new FormInstance<FormGenerator<T>, E>(this, elements);
   }

@@ -1,20 +1,24 @@
 <script lang="ts">
   import type { BaseElement } from '$lib/types';
+  import * as zod from 'zod';
 
   import type { FormGenerator, FormInstance } from './';
-  import { storeArrayToStore } from './utils/store';
+  import Object from './base-components/Object.svelte';
 
   export let form: FormInstance<FormGenerator, Readonly<BaseElement<string>[]>>;
 
   const formBind = form.createForm();
-
-  const hideElements = storeArrayToStore(form.elements.map((e) => form.resolveField(e.hide)));
 </script>
 
 <form use:formBind>
-  {#each form.elements as element, i}
-    {#if !$hideElements[i]}
-      <svelte:component this={form.generator.getComponent(element.type)} definition={element} {form} />
-    {/if}
-  {/each}
+  <Object
+    definition={{
+      type: 'object',
+      schema: zod.object({}),
+      elements: form.elements,
+      name: ''
+    }}
+    {form}
+    prefix=""
+  />
 </form>
