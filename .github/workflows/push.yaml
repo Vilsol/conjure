@@ -3,7 +3,7 @@ name: push
 on: [push, workflow_dispatch]
 
 jobs:
-  pages:
+  push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
