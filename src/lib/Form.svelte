@@ -19,6 +19,5 @@
       name: ''
     }}
     {form}
-    prefix=""
-  />
+    prefix="" />
 </form>

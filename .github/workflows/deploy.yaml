@@ -2,43 +2,43 @@ name: deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   pages:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup nodejs
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18.4.0
 
       - name: Cache pnpm modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-pnpm-modules
         with:
           path: ~/.pnpm-store
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-16-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-18-${{ hashFiles('**/package.json') }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-16-
+            ${{ runner.os }}-build-${{ env.cache-name }}-18-
 
       - name: Install dependencies
-        uses: pnpm/action-setup@v2.1.0
+        uses: pnpm/action-setup@v2.2.3
         with:
-          version: 6.0.2
+          version: 7.5.0
           run_install: true
 
       - name: Build
         run: npm run build
 
       - name: Deploy to pages
-        uses: JamesIves/github-pages-deploy-action@4.1.0
+        uses: JamesIves/github-pages-deploy-action@4.4.0
         with:
           branch: gh-pages
           folder: build

@@ -17,7 +17,6 @@
       this={form.generator.getComponent(element.type)}
       definition={element}
       prefix={prefix + definition.name + '.'}
-      {form}
-    />
+      {form} />
   {/if}
 {/each}
