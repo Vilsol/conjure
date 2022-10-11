@@ -56,9 +56,7 @@
       name: 'selection',
       label: 'Option',
       schema: zod.string(),
-      hide: (data) => {
-        return !('level' in data && typeof data.level === 'number' && data.level > 0);
-      },
+      hide: (data) => !('level' in data && typeof data.level === 'number' && data.level > 0),
       options: async (data) => {
         let selections = 3;
         if ('level' in data && typeof data.level === 'number' && data.level > 0) {

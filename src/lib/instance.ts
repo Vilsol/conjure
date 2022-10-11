@@ -121,7 +121,7 @@ export class FormInstance<T extends FormGenerator, E extends Readonly<BaseElemen
 
     if (typeof field === 'function') {
       this.getData().subscribe((data) => {
-        const resolvableParams = (field as (data: unknown) => X | PromiseLike<X>)(data);
+        const resolvableParams = (field as (x: unknown) => X | PromiseLike<X>)(data);
 
         Promise.resolve(resolvableParams).then((resolvedParams) => {
           result.set(resolvedParams);
@@ -143,6 +143,7 @@ export class FormInstance<T extends FormGenerator, E extends Readonly<BaseElemen
     return zod.object(
       this.elements.reduce((base, value) => {
         if ('schema' in value && 'name' in value) {
+          // eslint-disable-next-line
           base[value['name']] = value['schema'];
         }
         return base;

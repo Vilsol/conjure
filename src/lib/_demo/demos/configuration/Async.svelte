@@ -10,29 +10,23 @@
       name: 'class',
       label: 'Class',
       schema: zod.string(),
-      options: async () => {
-        return [
-          {
-            label: 'Select class...',
-            value: ''
-          },
-          ...(await getClasses()).results.map((clazz) => {
-            return {
-              label: clazz.name,
-              value: clazz.index
-            };
-          })
-        ];
-      }
+      options: async () => [
+        {
+          label: 'Select class...',
+          value: ''
+        },
+        ...(await getClasses()).results.map((clazz) => ({
+          label: clazz.name,
+          value: clazz.index
+        }))
+      ]
     },
     {
       type: 'select',
       name: 'feature',
       label: 'Feature',
       schema: zod.string(),
-      hide: (data) => {
-        return !('class' in data && data.class);
-      },
+      hide: (data) => !('class' in data && data.class),
       options: async (data: { class?: string }) => {
         if (!('class' in data && data.class)) {
           return [];
@@ -43,12 +37,10 @@
             label: 'Select feature...',
             value: ''
           },
-          ...(await getFeatures(data.class)).results.map((feature) => {
-            return {
-              label: feature.name,
-              value: feature.index
-            };
-          })
+          ...(await getFeatures(data.class)).results.map((feature) => ({
+            label: feature.name,
+            value: feature.index
+          }))
         ];
       }
     }
