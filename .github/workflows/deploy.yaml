@@ -1,6 +1,10 @@
-name: push
+name: deploy
 
-on: [ push, workflow_dispatch ]
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    branches: [ main ]
 
 jobs:
   pages:
@@ -32,3 +36,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Deploy to pages
+        uses: JamesIves/github-pages-deploy-action@4.1.0
+        with:
+          branch: gh-pages
+          folder: build
