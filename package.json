@@ -26,7 +26,7 @@
     "@commitlint/config-conventional": "^16.2.1",
     "@iconify-json/ri": "^1.1.1",
     "@sveltejs/adapter-static": "^1.0.0-next.29",
-    "@sveltejs/kit": "^1.0.0-next.308",
+    "@sveltejs/kit": "^2.4.3",
     "@svelteness/kit-docs": "^0.18.4",
     "@tailwindcss/forms": "^0.5.0",
     "@tailwindcss/typography": "^0.5.2",
