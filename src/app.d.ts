@@ -1,15 +1,17 @@
+/// <reference types="@sveltepress/theme-default/types" />
+/// <reference types="@sveltepress/vite/types" />
 /// <reference types="@sveltejs/kit" />
-/// <reference types="@svelteness/kit-docs/globals.d.ts" />
-/// <reference types="unplugin-icons/types/svelte.d.ts" />
 
-// See https://kit.svelte.dev/docs/types#the-app-namespace
+// See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
-declare namespace App {
-  // interface Platform {}
-  // interface Session {}
-  // interface Stuff {}
+declare global {
+	namespace App {
+		// interface Error {}
+		// interface Locals {}
+		// interface PageData {}
+		// interface PageState {}
+		// interface Platform {}
+	}
 }
 
-declare module '@svelteness/kit-docs/client/polyfills/index.js';
-
-declare module '~icons/ri/search-line';
+export {};

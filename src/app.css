@@ -1,71 +1,110 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --kd-color-brand-rgb: 249, 115, 22;
-  --kd-prose-pre-bg: rgb(40, 40, 40) !important;
-  --kd-code-fence-top-bar-bg: transparent !important;
+pre.demo {
+	@apply text-white p-4 rounded-md overflow-x-auto;
+	margin: 0;
+	padding: 1rem;
+	background-color: #24292e;
 }
 
-:root.dark {
-  --kd-color-brand-rgb: 249, 115, 22;
+.svp-code-block-wrapper {
+	@apply dark:bg-[#222222];
 }
 
-.kit-docs .code-fence .code pre {
-  margin: 0;
+.conjure-label {
+	@apply text-orange-500;
 }
 
-.kit-docs .search {
-  @apply rounded px-2.5 py-1 text-base placeholder-neutral-500 bg-transparent w-full placeholder:italic;
+.conjure-wrapper {
+	@apply my-3;
 }
 
-.kit-docs .search:focus {
-  @apply ring-orange-500 border-orange-500 ring-offset-orange-500;
+button {
+	box-sizing: border-box;
+	border-width: 0;
+	border-style: solid;
+	border-color: #eaeaea;
 }
 
-.kit-docs main {
-  @apply max-w-full;
+.conjure-wrapper
+	input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='color']):not([type='date']):not(
+		[type='datetime-local']
+	),
+.conjure-wrapper select,
+.conjure-wrapper textarea {
+	@apply mt-1 w-full;
 }
 
-#main-sidebar ul li {
-  @apply mt-8;
-}
+.conjure-wrapper input,
+.conjure-wrapper select,
+.conjure-wrapper textarea {
+	@apply px-3 py-2 rounded-md sm:text-sm;
+	@apply bg-transparent border shadow-sm border-slate-300 placeholder:text-neutral-500 text-white;
 
-#main-sidebar ul li:first-child {
-  @apply mt-0;
-}
+	@apply invalid:border-red-500 invalid:text-red-600;
 
-#main-sidebar ul li ul li {
-  @apply mt-1;
-}
+	@apply disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none;
 
-main .conjure-label {
-  @apply text-orange-500;
-}
-
-main .conjure-wrapper {
-  @apply my-3;
-}
-
-.kit-docs main input,
-.kit-docs main select,
-.kit-docs main textarea {
-  @apply px-3 py-2 mt-1 block w-full rounded-md sm:text-sm;
-  @apply bg-transparent border shadow-sm border-slate-300 placeholder:text-neutral-500 text-white;
-
-  @apply invalid:border-red-500 invalid:text-red-600;
-
-  @apply disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none;
-
-  @apply focus:outline-none focus:border-orange-500 focus:ring-orange-500 focus:ring-offset-orange-500 focus:ring-1;
-  @apply focus:invalid:border-red-500 focus:invalid:ring-red-500;
-}
-
-.kit-docs main select option {
-  background: var(--kd-color-gray-body);
+	@apply focus:outline-none focus:border-orange-500 focus:ring-orange-500 focus:ring-offset-orange-500 focus:ring-1;
+	@apply focus:invalid:border-red-500 focus:invalid:ring-red-500;
 }
 
 .demo-button {
-  @apply bg-neutral-700 px-5 py-2 rounded text-white;
+	@apply bg-neutral-700 px-5 py-2 rounded text-white;
+}
+
+.content table .shiki {
+	@apply px-1 py-0.75 rounded-md w-fit;
+}
+
+a.link > code,
+a.link > pre,
+a.link > div > pre {
+	@apply border-b-1 border-orange-500;
+
+	border-bottom-style: solid;
+}
+
+code.demo,
+.dark code {
+	background: #222222;
+}
+
+.stepper {
+	@apply flex flex-col gap-2;
+}
+
+.stepper .stepper-header {
+	@apply flex flex-row gap-4 items-center font-bold;
+}
+
+.stepper .stepper-number {
+	@apply text-black bg-white rounded-md w-6 h-6 flex items-center justify-center text-xs;
+}
+
+.stepper .stepper-step {
+	@apply flex flex-row gap-2 ml-3 pl-7 py-4;
+}
+
+.stepper .stepper-step:not(:last-child) {
+	@apply border-l-2 border-neutral-800;
+	border-left-style: solid;
+}
+
+.stepper .stepper-step > div {
+	width: 50%;
+}
+
+html.dark body {
+	background: #1a1a1a;
+}
+
+.dark aside.theme-default-sidebar {
+	background-color: #131313 !important;
+}
+
+.attribute-table > table > tbody > tr > td:first-child > code {
+	@apply text-violet-400;
+}
+
+.required {
+	@apply text-orange-500;
 }

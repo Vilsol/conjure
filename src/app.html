@@ -1,25 +1,27 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="dark">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="description" content="" />
-    <link rel="icon" href="%svelte.assets%/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <script>
-      const key = 'svelteness::color-scheme';
-      const scheme = localStorage[key];
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (scheme === 'dark' || (scheme !== 'light' && prefersDark)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    </script>
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content="Conjure" />
+		<meta property="og:url" content="https://conjure.rocks" />
+		<meta property="og:description" content="A magical form generator for Svelte" />
+		<meta property="og:image" content="https://conjure.rocks/android-chrome-512x512.png" />
+		<meta property="og:image:width" content="512" />
+		<meta property="og:image:height" content="512" />
 
-    %svelte.head%
-  </head>
-  <body>
-    <div>%svelte.body%</div>
-  </body>
+		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<link rel="alternate icon" href="/favicon.png" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<link rel="mask-icon" href="/conjure-logo-small.png" color="#ffffff" />
+		<meta name="msapplication-TileColor" content="#ffffff" />
+		<link rel="shortcut icon" type="image/png" href="/android-chrome-192x192.png" />
+
+		%sveltekit.head%
+	</head>
+	<body>
+		<div>%sveltekit.body%</div>
+	</body>
 </html>
