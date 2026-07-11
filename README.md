@@ -1,6 +1,6 @@
 # conjure
 
-A flexible svelte form generator library based on [felte](https://github.com/pablo-abc/felte).
+A flexible svelte form generator library built on Svelte 5, with zod as its only runtime dependency.
 
 Supported validators:
 
@@ -10,5 +10,4 @@ Supported validators:
 
 1. Default values
 2. Previous values
-3. Docs
-4. Resolved data objects
+3. Resolved data objects

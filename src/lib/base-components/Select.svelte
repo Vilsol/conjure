@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { ValidationMessage } from '@felte/reporter-svelte';
 	import Label from '$lib/common/Label.svelte';
 	import Wrapper from '$lib/common/Wrapper.svelte';
 	import type { BaseProps } from '../types.js';
@@ -11,6 +10,7 @@
 	const realParams = $derived(form.resolveParams(definition));
 	const realOptions = $derived(form.resolveField(definition.options));
 	const fieldName = $derived(prefix + definition.name);
+	const errors = $derived(form.getErrors());
 
 	const WrapperElement = $derived(definition.components?.wrapper || Wrapper);
 </script>
@@ -31,7 +31,5 @@
 		{/if}
 	</select>
 
-	<ValidationMessage for={fieldName} let:messages={message}>
-		<span>{message || ''}</span>
-	</ValidationMessage>
+	<span class="conjure-error">{$errors[fieldName]?.[0] || ''}</span>
 </WrapperElement>

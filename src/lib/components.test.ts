@@ -26,7 +26,6 @@ const mountForm = async (elements: never) => {
 };
 
 afterEach(async () => {
-	// let @felte/reporter-svelte's deferred setTimeout callbacks run before unmounting
 	await tick();
 	cleanup?.();
 	cleanup = undefined;

@@ -1,4 +1,5 @@
 import { FormInstance } from './instance.js';
+import type { FormOptions, ReMapper } from './instance.js';
 import type { ArrayElement, BaseElement, BaseProps, ExtractBaseElement, ObjectElement } from './types.js';
 import type { ValidatorDefinition } from './validators/index.js';
 import type { Component } from 'svelte';
@@ -83,11 +84,13 @@ export class FormGenerator<T extends BaseElement<string> = never> {
 	/**
 	 * Create a new form instance of provided schema
 	 * @param elements Elements of the schema
+	 * @param options Form behavior such as the submit handler
 	 */
 	newForm<E extends Readonly<(T | ArrayElement<T> | ObjectElement<T>)[]>>(
-		elements: E
+		elements: E,
+		options?: FormOptions<ReMapper<E>>
 	): FormInstance<FormGenerator<T>, E> {
 		// TODO Validate no duplicate names
-		return new FormInstance<FormGenerator<T>, E>(this, elements);
+		return new FormInstance<FormGenerator<T>, E>(this, elements, options);
 	}
 }

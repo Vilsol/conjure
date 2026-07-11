@@ -1,14 +1,11 @@
-import type { Extender, FieldsSetter } from '@felte/common';
-import { reporter as svelteReporter } from '@felte/reporter-svelte';
-import { validator as zodValidator } from '@felte/validator-zod';
-import { createForm } from 'felte';
-import type { Readable, Unsubscriber, Writable } from 'svelte/store';
-import { derived, writable } from 'svelte/store';
+import type { Readable, Writable } from 'svelte/store';
+import { derived, get, writable } from 'svelte/store';
 import type { ZodObject, ZodRawShape, ZodTypeAny } from 'zod';
 import * as zod from 'zod';
 
 import type { FormGenerator } from './generator.js';
 import type { ArrayElement, BaseElement, ObjectElement, Resolvable } from './types.js';
+import { getPath, setPath } from './utils/path.js';
 import { fromZod } from './validators/index.js';
 
 // TODO Replace unknown with calculated value somehow E[number]['value']
@@ -23,56 +20,150 @@ type SubRemap<T> =
 				: unknown[]
 			: unknown;
 
-type ReMapper<E extends Readonly<BaseElement<string>[]>> = {
+export type ReMapper<E extends Readonly<BaseElement<string>[]>> = {
 	[key in Extract<E[number], { name: string }> as key['name']]: E[number] extends { name: string }
 		? SubRemap<E[number]>
 		: never;
 };
 
+export interface FormOptions<D> {
+	onSubmit?: (data: D) => void;
+}
+
+type NamedControl = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
+const coerceValue = (el: NamedControl): unknown => {
+	if (el instanceof HTMLInputElement) {
+		if (el.type === 'checkbox') {
+			return el.checked;
+		}
+		if (el.type === 'number' || el.type === 'range') {
+			return el.value === '' ? undefined : el.valueAsNumber;
+		}
+		return el.value;
+	}
+	if (el instanceof HTMLSelectElement && el.multiple) {
+		return [...el.selectedOptions].map((option) => option.value);
+	}
+	return el.value;
+};
+
+const syncControls = (node: HTMLFormElement, data: unknown) => {
+	const controls = node.querySelectorAll<NamedControl>('input[name], textarea[name], select[name]');
+	for (const el of controls) {
+		const value = getPath(data, el.name);
+		if (el instanceof HTMLInputElement && el.type === 'checkbox') {
+			const next = !!value;
+			if (el.checked !== next) {
+				el.checked = next;
+			}
+		} else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+			const next = String(value);
+			if (el.value !== next) {
+				el.value = next;
+			}
+		} else if (value === undefined || value === null) {
+			if (el.value !== '') {
+				el.value = '';
+			}
+		}
+	}
+};
+
 export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extends Readonly<BaseElement<string>[]>> {
 	private readonly data: Writable<ReMapper<E>>;
-	private setFields: FieldsSetter<Record<string, unknown>> | undefined;
-	private dataSubscriber: Unsubscriber | undefined;
-	private updating = false;
+	private readonly allErrors = writable<Record<string, string[]>>({});
+	private readonly touched = writable<Record<string, boolean>>({});
 
 	constructor(
 		public generator: T,
-		public elements: E
+		public elements: E,
+		private options: FormOptions<ReMapper<E>> = {}
 	) {
 		this.data = writable({} as ReMapper<E>);
-
-		this.data.subscribe((value) => {
-			if (!this.updating && this.setFields) {
-				this.setFields(value as Record<string, unknown>);
-			}
-			this.updating = false;
-		});
 	}
 
+	/**
+	 * Create the form action to apply on a `<form>` element with `use:`.
+	 *
+	 * Any form control with a `name` attribute participates: its value is
+	 * written into the data store under the dot-separated path of its name,
+	 * and programmatic data changes are written back into the DOM.
+	 */
 	createForm() {
-		const { form, data, setFields } = createForm({
-			initialValues: {}, // TODO Initial values
-			extend: this.getExtensions(),
-			onSubmit: console.log // TODO Submit handling
-		});
+		return (node: HTMLFormElement) => {
+			const handleInput = (event: Event) => {
+				const el = event.target as NamedControl | null;
+				if (!el || !el.name) {
+					return;
+				}
+				this.data.update((data) => setPath(data, el.name, coerceValue(el)));
+				this.touched.update((touched) => ({ ...touched, [el.name]: true }));
+				this.validate();
+			};
 
-		if (this.dataSubscriber) {
-			this.dataSubscriber();
-			this.dataSubscriber = undefined;
-		}
+			const handleSubmit = (event: Event) => {
+				event.preventDefault();
+				this.touched.update((touched) => ({ ...touched, '*': true }));
+				if (this.validate()) {
+					this.options.onSubmit?.(get(this.data));
+				}
+			};
 
-		this.setFields = setFields;
-		this.dataSubscriber = data.subscribe((d) => {
-			// TODO Figure out a cleaner way
-			this.updating = true;
-			this.data.set(d as ReMapper<E>);
-		});
+			const unsubscribe = this.data.subscribe((data) => {
+				syncControls(node, data);
+			});
 
-		return form;
+			node.addEventListener('input', handleInput);
+			node.addEventListener('change', handleInput);
+			node.addEventListener('submit', handleSubmit);
+
+			return {
+				destroy: () => {
+					unsubscribe();
+					node.removeEventListener('input', handleInput);
+					node.removeEventListener('change', handleInput);
+					node.removeEventListener('submit', handleSubmit);
+				}
+			};
+		};
 	}
 
 	getData(): Writable<ReMapper<E>> {
 		return this.data;
+	}
+
+	/**
+	 * Validation errors keyed by field path, filtered to touched fields
+	 * (all fields count as touched after a submit attempt).
+	 */
+	getErrors(): Readable<Record<string, string[]>> {
+		return derived([this.allErrors, this.touched], ([$errors, $touched]) => {
+			if ($touched['*']) {
+				return $errors;
+			}
+			return Object.fromEntries(Object.entries($errors).filter(([key]) => $touched[key]));
+		});
+	}
+
+	/**
+	 * Validate the current data against the composed schema, updating the
+	 * error store. Returns whether the data is valid.
+	 */
+	validate(): boolean {
+		const result = this.getValidationSchema().safeParse(get(this.data));
+		if (result.success) {
+			this.allErrors.set({});
+			return true;
+		}
+
+		const errors: Record<string, string[]> = {};
+		for (const issue of result.error.issues) {
+			const key = issue.path.join('.');
+			(errors[key] ??= []).push(issue.message);
+		}
+		this.allErrors.set(errors);
+		return false;
 	}
 
 	// TODO Figure out how to return actual params not map of strings
@@ -158,22 +249,5 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 				return base;
 			}, {})
 		);
-	}
-
-	// TODO Support various validators
-	getValidator(): Extender {
-		return zodValidator({
-			schema: this.getValidationSchema()
-		});
-	}
-
-	// TODO Support various reporters
-	getReporter(): Extender {
-		return svelteReporter;
-	}
-
-	// TODO Expandable extensions
-	getExtensions(): Extender[] {
-		return [this.getValidator(), this.getReporter()];
 	}
 }
