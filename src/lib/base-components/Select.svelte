@@ -24,7 +24,7 @@
 			return undefined;
 		}
 		const value = getPath($data, fieldName);
-		if (($realParams as { multiple?: boolean }).multiple) {
+		if ($realParams.multiple) {
 			const values = Array.isArray(value) ? value : [];
 			return options.flatMap((option, index) => (values.some((v) => deepEqual(v, option.value)) ? [index] : []));
 		}

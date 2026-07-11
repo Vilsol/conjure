@@ -10,27 +10,32 @@ import type { ArrayElement, BaseElement, ObjectElement, Resolvable } from './typ
 import { getPath, setPath } from './utils/path.js';
 import { fromZod } from './validators/index.js';
 
-// TODO Replace unknown with calculated value somehow E[number]['value']
-// TODO Figure out why this falls back to unknown with more than one element
-
 type SubRemap<T> =
 	T extends ObjectElement<BaseElement<string>>
 		? ReMapper<T['elements']>
 		: T extends ArrayElement<BaseElement<string>>
 			? T['element'] extends Omit<ObjectElement<BaseElement<string>>, 'name'>
 				? ReMapper<T['element']['elements']>[]
-				: unknown[]
-			: unknown;
+				: T['element'] extends { schema: infer S extends ZodTypeAny }
+					? zod.output<S>[]
+					: unknown[]
+			: T extends { schema: infer S extends ZodTypeAny }
+				? zod.output<S>
+				: unknown;
 
 export type ReMapper<E extends Readonly<BaseElement<string>[]>> = {
-	[key in Extract<E[number], { name: string }> as key['name']]: E[number] extends { name: string }
-		? SubRemap<E[number]>
-		: never;
+	[K in Extract<E[number], { name: string }> as K['name']]: SubRemap<K>;
 };
+
+type DeepPartial<T> = T extends (infer U)[]
+	? DeepPartial<U>[]
+	: T extends object
+		? { [K in keyof T]?: DeepPartial<T[K]> }
+		: T;
 
 export interface FormOptions<D> {
 	/** Existing values to edit, merged over element/schema defaults. */
-	data?: Partial<D>;
+	data?: DeepPartial<D>;
 	onSubmit?: (data: D) => void;
 }
 
@@ -142,7 +147,7 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 		const seed: Record<string, unknown> = {};
 		seedDefaults(elements, seed);
 		if (options.data) {
-			deepMerge(seed, structuredClone(options.data));
+			deepMerge(seed, structuredClone(options.data) as Record<string, unknown>);
 		}
 		this.data = writable(seed as ReMapper<E>);
 	}
@@ -280,19 +285,18 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 		return false;
 	}
 
-	// TODO Figure out how to return actual params not map of strings
 	resolveParams<X extends { [key: string]: unknown }>(
 		input: BaseElement<string> & { name?: string; params?: Resolvable<X>; schema?: ZodTypeAny }
-	): Readable<{ [key: string]: string }> {
+	): Readable<X> {
 		let base = {
 			...this.generator.getDefaultParams(input.type)
-		};
+		} as X;
 
 		if (input.schema) {
 			const fromValidator = this.generator.getFromValidator<X>(input.type);
 			if (fromValidator) {
 				// TODO Support various validators
-				base = fromValidator(base as X, fromZod(input.schema)) as { [key: string]: string };
+				base = fromValidator(base, fromZod(input.schema));
 			}
 		}
 
@@ -301,7 +305,7 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 		}
 
 		const params = input.params;
-		const merge = (resolved: X) => ({ ...base, ...resolved }) as { [key: string]: string };
+		const merge = (resolved: X) => ({ ...base, ...resolved });
 
 		if (typeof params === 'function') {
 			return derived(
