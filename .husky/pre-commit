@@ -1,4 +1,1 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-#devbox run -- pnpm lint && pnpm check
+pnpm lint && pnpm check

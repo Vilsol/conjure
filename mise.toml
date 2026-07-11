@@ -1,0 +1,12 @@
+[tools]
+node = "24"
+
+[env]
+MISE_NODE_COREPACK = true
+
+[hooks]
+enter = "mise i -q"
+postinstall = 'npx corepack enable'
+
+[settings]
+experimental = true

@@ -1,4 +1,1 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-# devbox run -- pnpm exec commitlint -e $1
+pnpm exec commitlint -e $1
