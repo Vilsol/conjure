@@ -1,8 +1,8 @@
 ---
 title: Conjure
-description: TODO
+description: A schema-driven form generator for Svelte 5
 heroImage: /android-chrome-192x192.png
-tagline: TODO
+tagline: Describe your form as data, get a validated, type-safe Svelte form back.
 actions:
   - label: Read the docs
     to: /guide/introduction/
@@ -12,11 +12,25 @@ actions:
     to: https://github.com/Vilsol/conjure
     external: true
 features:
-  - title: TODO
-    description: TODO
+  - title: Schema driven
+    description: Forms are plain arrays of element definitions — render them, store them, or generate them at runtime.
     icon:
       type: iconify
       collection: vscode-icons
-      name: file-type-markdown
-    link: /guide/markdown/frontmatter/
+      name: file-type-json
+    link: /guide/introduction/
+  - title: Validated by zod
+    description: Every field carries a zod schema. Validation, error messages, and HTML constraint attributes all derive from it — zod is the only runtime dependency.
+    icon:
+      type: iconify
+      collection: vscode-icons
+      name: file-type-typescript-official
+    link: /reference/configuration/base-input/
+  - title: Fully extensible
+    description: The immutable generator lets you register custom element types and override any component, wrapper, or label.
+    icon:
+      type: iconify
+      collection: vscode-icons
+      name: file-type-svelte
+    link: /reference/extending/custom-elements/
 ---

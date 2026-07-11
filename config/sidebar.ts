@@ -23,6 +23,10 @@ export default {
 					to: '/reference/configuration/generator/'
 				},
 				{
+					title: 'Form Instance',
+					to: '/reference/configuration/instance/'
+				},
+				{
 					title: 'Resolvable',
 					to: '/reference/configuration/resolvable/'
 				},

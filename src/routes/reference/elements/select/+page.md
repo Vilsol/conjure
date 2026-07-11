@@ -45,3 +45,46 @@ In addition, it has the following attributes:
 
 <pre>{JSON.stringify($data, null, 4)}</pre>
 ```
+
+## Object values
+
+Option values are not limited to strings — selecting an option puts the **original** `value` into the form data, objects included. The selection is matched back by structural equality, so this also works with existing values on an edit page:
+
+```svelte live ln
+<script lang="ts">
+  import { Base, Form } from '$lib';
+  import { z } from 'zod';
+
+  const colors = [
+    { label: 'Red', value: { id: 1, hex: '#f00' } },
+    { label: 'Blue', value: { id: 2, hex: '#00f' } }
+  ];
+
+  const form = Base.newForm(
+    [
+      {
+        type: 'select',
+        name: 'color',
+        label: 'Color',
+        schema: z.object({ id: z.number(), hex: z.string() }),
+        options: colors
+      }
+    ] as const,
+    {
+      data: { color: { id: 2, hex: '#00f' } }
+    }
+  );
+
+  const data = form.getData();
+</script>
+
+<Form {form} />
+
+<pre>{JSON.stringify($data, null, 4)}</pre>
+```
+
+Multiple selects (`params: { multiple: true }`) resolve to an array of option values.
+
+:::info[How it works]
+The rendered `<option>` elements carry the option **index** as their DOM value, and the component registers its resolved options on the form instance via `registerSelectOptions`. Custom select-like components can use the same mechanism — see the [form instance](../../configuration/instance/) reference.
+:::
