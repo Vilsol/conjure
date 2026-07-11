@@ -1,22 +1,17 @@
 <script lang="ts">
-  import type { FormGenerator, FormInstance } from '$lib';
-  import type { BaseElement, ObjectElement } from '$lib/types';
+	import type { BaseElement, BaseProps, ObjectElement } from '../types.js';
 
-  import { storeArrayToStore } from '../utils/store';
+	import { storeArrayToStore } from '../utils/store.js';
 
-  export let definition: ObjectElement<BaseElement<string>>;
-  export let form: FormInstance<FormGenerator, Readonly<BaseElement<string>[]>>;
-  export let prefix: string;
+	let { definition, form, prefix }: BaseProps<ObjectElement<BaseElement<string>>> = $props();
 
-  const hideElements = storeArrayToStore(definition.elements.map((e) => form.resolveField(e.hide)));
+	const hideElements = $derived(storeArrayToStore(definition.elements.map((e) => form.resolveField(e.hide ?? false))));
+	const childPrefix = $derived(prefix + (definition.name ? definition.name + '.' : ''));
 </script>
 
-{#each definition.elements as element, i}
-  {#if !$hideElements[i]}
-    <svelte:component
-      this={form.generator.getComponent(element.type)}
-      definition={element}
-      prefix={prefix + definition.name + '.'}
-      {form} />
-  {/if}
+{#each definition.elements as element, i (i)}
+	{#if !$hideElements[i]}
+		{@const SvelteComponent = form.generator.getComponent(element.type)}
+		<SvelteComponent definition={element} prefix={childPrefix} {form} />
+	{/if}
 {/each}

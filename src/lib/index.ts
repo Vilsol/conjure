@@ -1,7 +1,7 @@
 import Form from './Form.svelte';
 
-export * from './generator';
-export * from './instance';
-export * from './base';
+export * from './generator.js';
+export * from './instance.js';
+export * from './base.js';
 
 export { Form };

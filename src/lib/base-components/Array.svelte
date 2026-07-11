@@ -1,20 +1,17 @@
 <script lang="ts">
-  import type { FormGenerator, FormInstance } from '$lib';
-  import type { ArrayElement, BaseElement } from '$lib/types';
+	import type { ArrayElement, BaseElement, BaseProps } from '../types.js';
 
-  export let definition: ArrayElement<BaseElement<string>>;
-  export let form: FormInstance<FormGenerator, Readonly<BaseElement<string>[]>>;
-  export let prefix: string;
+	let { definition, form, prefix }: BaseProps<ArrayElement<BaseElement<string>>> = $props();
 
-  $: realCount = form.resolveField(definition.count);
+	const realCount = $derived(form.resolveField(definition.count));
+	const ItemComponent = $derived(form.generator.getComponent(definition.element.type));
+
+	const itemDefinition = (index: number) =>
+		({ ...definition.element, name: index.toString() }) as unknown as BaseElement<string>;
 </script>
 
 {#if $realCount}
-  {#each Array($realCount) as _, i}
-    <svelte:component
-      this={form.generator.getComponent(definition.element.type)}
-      definition={{ ...definition.element, name: '' }}
-      prefix={prefix + definition.name + '.' + i.toString() + '.'}
-      {form} />
-  {/each}
+	{#each Array.from({ length: $realCount }, (_, index) => index) as index (index)}
+		<ItemComponent definition={itemDefinition(index)} prefix={prefix + definition.name + '.'} {form} />
+	{/each}
 {/if}

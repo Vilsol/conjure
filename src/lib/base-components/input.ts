@@ -1,30 +1,43 @@
-import type { BaseInput, Resolvable, StripName } from '../types';
-import type { ValidatorDefinition } from '../validators';
+import type { BaseInput, Resolvable, StripName } from '../types.js';
+import type { ValidatorDefinition } from '../validators/index.js';
+import type { HTMLInputAttributes } from 'svelte/elements';
 
 export interface InputElement extends BaseInput<'input'> {
-  params?: Resolvable<StripName<svelteHTML.SvelteInputProps>>;
+	params?: Resolvable<StripName<HTMLInputAttributes>>;
 }
 
 export const fromValidatorToParams = (
-  params: StripName<svelteHTML.SvelteInputProps>,
-  definition: ValidatorDefinition
-): StripName<svelteHTML.SvelteInputProps> => {
-  const result = {
-    ...params
-  };
+	params: StripName<HTMLInputAttributes>,
+	definition: ValidatorDefinition
+): StripName<HTMLInputAttributes> => {
+	const result = {
+		...params
+	};
 
-  definition.type && (result.type = definition.type);
+	if (definition.type) {
+		result.type = definition.type;
+	}
 
-  switch (result.type) {
-    case 'number':
-      definition.min && (result.min = definition.min);
-      definition.max && (result.max = definition.max);
-      break;
-    default:
-      definition.min && (result.minlength = definition.min);
-      definition.max && (result.maxlength = definition.max);
-      break;
-  }
+	switch (result.type) {
+		case 'number':
+			if (definition.min !== undefined) {
+				result.min = definition.min;
+			}
 
-  return result;
+			if (definition.max !== undefined) {
+				result.max = definition.max;
+			}
+			break;
+		default:
+			if (definition.min !== undefined) {
+				result.minlength = definition.min;
+			}
+
+			if (definition.max !== undefined) {
+				result.maxlength = definition.max;
+			}
+			break;
+	}
+
+	return result;
 };

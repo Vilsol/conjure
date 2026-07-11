@@ -1,83 +1,93 @@
-import { FormInstance } from '$lib';
-import type { ArrayElement, BaseElement, ObjectElement } from '$lib/types';
-import type { ValidatorDefinition } from '$lib/validators';
+import { FormInstance } from './instance.js';
+import type { ArrayElement, BaseElement, BaseProps, ExtractBaseElement, ObjectElement } from './types.js';
+import type { ValidatorDefinition } from './validators/index.js';
+import type { Component } from 'svelte';
 
 interface TypeRegistryElement<P> {
-  component: unknown;
-  fromValidator: (params: P, definition: ValidatorDefinition) => P;
+	component: Component<BaseProps<BaseElement<string>>>;
+	fromValidator?: (params: P, definition: ValidatorDefinition) => P;
 }
 
+/**
+ * Used to create a form generator that can be extended with new element types.
+ * It allows you to define new element types, retrieve components and validators, and create new form instances.
+ *
+ * The class is immutable, so any modification will return a new instance of the class.
+ *
+ * @template T - The type of the elements in the form generator.
+ */
 export class FormGenerator<T extends BaseElement<string> = never> {
-  constructor(
-    private typeRegistry: Map<string, TypeRegistryElement<unknown>> = new Map(),
-    private defaultParams: Map<string, { [key: string]: string }> = new Map()
-  ) {}
+	constructor(
+		private typeRegistry: Map<string, TypeRegistryElement<unknown>> = new Map(),
+		private defaultParams: Map<string, { [key: string]: string }> = new Map()
+	) {}
 
-  /**
-   * Extend generator with a new element type
-   * @param type Type name
-   * @param component Type component
-   * @param fromValidator Converter from validator definition
-   */
-  withType<M extends BaseElement<string>, P = unknown>(
-    type: M extends BaseElement<infer S> ? S : never,
-    component: unknown,
-    fromValidator?: (params: P, definition: ValidatorDefinition) => P
-  ): FormGenerator<T | M> {
-    const newTypeRegistry = new Map(this.typeRegistry);
-    newTypeRegistry.set(type, {
-      component,
-      fromValidator
-    });
-    return new FormGenerator<T | M>(newTypeRegistry, new Map(this.defaultParams));
-  }
+	/**
+	 * Extend generator with a new element type
+	 * @param type Type name
+	 * @param component Type component
+	 * @param fromValidator Converter from validator definition
+	 */
+	withType<M extends BaseElement<string>, P = unknown>(
+		type: ExtractBaseElement<M>,
+		component: Component<BaseProps<M>>,
+		fromValidator?: (params: P, definition: ValidatorDefinition) => P
+	): FormGenerator<T | M> {
+		const newTypeRegistry = new Map(this.typeRegistry);
+		newTypeRegistry.set(type, {
+			component: component as Component<BaseProps<BaseElement<string>>>,
+			fromValidator: fromValidator as (params: unknown, definition: ValidatorDefinition) => unknown
+		});
+		return new FormGenerator<T | M>(newTypeRegistry, new Map(this.defaultParams));
+	}
 
-  /**
-   * Retrieve a component from the type registry
-   * @param typeName Name of the element type
-   */
-  getComponent(typeName: string): unknown | undefined {
-    return this.typeRegistry.get(typeName)?.component;
-  }
+	/**
+	 * Retrieve a component from the type registry
+	 * @param typeName Name of the element type
+	 */
+	getComponent(typeName: T['type']): Component<BaseProps<BaseElement<string>>> | undefined {
+		return this.typeRegistry.get(typeName)?.component;
+	}
 
-  /**
-   * Retrieve a component validator parameter converter from the type registry
-   * @param typeName Name of the element type
-   */
-  getFromValidator<P = unknown>(typeName: string): (params: P, definition: ValidatorDefinition) => P | undefined {
-    return this.typeRegistry.get(typeName)?.fromValidator as (params: P, definition: ValidatorDefinition) => P;
-  }
+	/**
+	 * Retrieve a component validator parameter converter from the type registry
+	 * @param typeName Name of the element type
+	 */
+	getFromValidator<P = unknown>(typeName: T['type']): ((params: P, definition: ValidatorDefinition) => P) | undefined {
+		return this.typeRegistry.get(typeName)?.fromValidator as
+			((params: P, definition: ValidatorDefinition) => P) | undefined;
+	}
 
-  /**
-   * Add a parameter on an element type as a default parameter
-   * @param type Element type name
-   * @param param Parameter name
-   * @param value Default value
-   */
-  withDefaultParam(type: T['type'], param: string, value: string): FormGenerator<T> {
-    const newDefaultParams = new Map(this.defaultParams);
-    const allParams = newDefaultParams.get(type) || {};
-    allParams[param] = value;
-    newDefaultParams.set(type, allParams);
-    return new FormGenerator(new Map(this.typeRegistry), newDefaultParams);
-  }
+	/**
+	 * Add a parameter on an element type as a default parameter
+	 * @param typeName Element type name
+	 * @param param Parameter name
+	 * @param value Default value
+	 */
+	withDefaultParam(typeName: T['type'], param: string, value: string): FormGenerator<T> {
+		const newDefaultParams = new Map(this.defaultParams);
+		const allParams = { ...(newDefaultParams.get(typeName) || {}) };
+		allParams[param] = value;
+		newDefaultParams.set(typeName, allParams);
+		return new FormGenerator(new Map(this.typeRegistry), newDefaultParams);
+	}
 
-  /**
-   * Get all the default params for a type
-   * @param type The type name
-   */
-  getDefaultParams(type: string): { [key: string]: string } {
-    return this.defaultParams.get(type);
-  }
+	/**
+	 * Get all the default params for a type
+	 * @param typeName The type name
+	 */
+	getDefaultParams(typeName: T['type']): { [key: string]: string } {
+		return this.defaultParams.get(typeName) || {};
+	}
 
-  /**
-   * Create a new form instance of provided schema
-   * @param elements Elements of the schema
-   */
-  newForm<E extends Readonly<(T | ArrayElement<T> | ObjectElement<T>)[]>>(
-    elements: E
-  ): FormInstance<FormGenerator<T>, E> {
-    // TODO Validate no duplicate names
-    return new FormInstance<FormGenerator<T>, E>(this, elements);
-  }
+	/**
+	 * Create a new form instance of provided schema
+	 * @param elements Elements of the schema
+	 */
+	newForm<E extends Readonly<(T | ArrayElement<T> | ObjectElement<T>)[]>>(
+		elements: E
+	): FormInstance<FormGenerator<T>, E> {
+		// TODO Validate no duplicate names
+		return new FormInstance<FormGenerator<T>, E>(this, elements);
+	}
 }

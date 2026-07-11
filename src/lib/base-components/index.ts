@@ -8,14 +8,14 @@ import Progress from './Progress.svelte';
 import Select from './Select.svelte';
 import Textarea from './Textarea.svelte';
 
-export { fromValidatorToParams as inputFromValidatorToParams } from './input';
+export { fromValidatorToParams as inputFromValidatorToParams } from './input.js';
 
-export type { ButtonElement } from './button';
-export type { HeaderElement } from './header';
-export type { InputElement } from './input';
-export type { MeterElement } from './meter';
-export type { ProgressElement } from './progress';
-export type { SelectElement, SelectOption } from './select';
-export type { TextareaElement } from './textarea';
+export type { ButtonElement } from './button.js';
+export type { HeaderElement } from './header.js';
+export type { InputElement } from './input.js';
+export type { MeterElement } from './meter.js';
+export type { ProgressElement } from './progress.js';
+export type { SelectElement, SelectOption } from './select.js';
+export type { TextareaElement } from './textarea.js';
 
 export { Array, Button, Header, Input, Meter, Object, Progress, Select, Textarea };

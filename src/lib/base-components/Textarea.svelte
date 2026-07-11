@@ -1,28 +1,30 @@
 <script lang="ts">
-  import { ValidationMessage } from '@felte/reporter-svelte';
-  import type { FormGenerator, FormInstance } from '$lib';
-  import Label from '$lib/common/Label.svelte';
-  import Wrapper from '$lib/common/Wrapper.svelte';
-  import type { BaseElement } from '$lib/types';
+	import { ValidationMessage } from '@felte/reporter-svelte';
+	import Label from '$lib/common/Label.svelte';
+	import Wrapper from '$lib/common/Wrapper.svelte';
+	import type { BaseProps } from '../types.js';
 
-  import type { TextareaElement } from './textarea';
+	import type { TextareaElement } from './textarea.js';
 
-  export let definition: TextareaElement;
-  export let form: FormInstance<FormGenerator, Readonly<BaseElement<string>[]>>;
+	let { definition, form, prefix }: BaseProps<TextareaElement> = $props();
 
-  $: realParams = form.resolveParams(definition);
+	const realParams = $derived(form.resolveParams(definition));
+	const fieldName = $derived(prefix + definition.name);
+
+	const WrapperElement = $derived(definition.components?.wrapper || Wrapper);
 </script>
 
-<svelte:component this={definition.components?.wrapper || Wrapper}>
-  {#if definition.label}
-    <svelte:component this={definition.components?.label || Label}>
-      <label for={definition.name}>{definition.label}</label>
-    </svelte:component>
-  {/if}
+<WrapperElement>
+	{#if definition.label}
+		{@const LabelElement = definition.components?.label || Label}
+		<LabelElement>
+			<label for={fieldName}>{definition.label}</label>
+		</LabelElement>
+	{/if}
 
-  <textarea name={definition.name} {...$realParams} />
+	<textarea id={fieldName} name={fieldName} {...$realParams}></textarea>
 
-  <ValidationMessage for={definition.name} let:messages={message}>
-    <span>{message || ''}</span>
-  </ValidationMessage>
-</svelte:component>
+	<ValidationMessage for={fieldName} let:messages={message}>
+		<span>{message || ''}</span>
+	</ValidationMessage>
+</WrapperElement>

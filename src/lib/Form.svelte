@@ -1,23 +1,28 @@
 <script lang="ts">
-  import type { BaseElement } from '$lib/types';
-  import * as zod from 'zod';
+	import type { BaseElement } from './types.js';
+	import * as zod from 'zod';
 
-  import type { FormGenerator, FormInstance } from './';
-  import Object from './base-components/Object.svelte';
+	import type { FormGenerator, FormInstance } from './index.js';
+	import Object from './base-components/Object.svelte';
 
-  export let form: FormInstance<FormGenerator, Readonly<BaseElement<string>[]>>;
+	interface Props {
+		form: FormInstance<FormGenerator<BaseElement<string>>, Readonly<BaseElement<string>[]>>;
+	}
 
-  const formBind = form.createForm();
+	let { form }: Props = $props();
+
+	const formBind = $derived(form.createForm());
 </script>
 
 <form use:formBind>
-  <Object
-    definition={{
-      type: 'object',
-      schema: zod.object({}),
-      elements: form.elements,
-      name: ''
-    }}
-    {form}
-    prefix="" />
+	<Object
+		definition={{
+			type: 'object',
+			schema: zod.object({}),
+			elements: form.elements,
+			name: ''
+		}}
+		{form}
+		prefix=""
+	/>
 </form>

@@ -1,14 +1,12 @@
 <script lang="ts">
-  import type { FormGenerator, FormInstance } from '$lib';
-  import type { BaseElement } from '$lib/types';
+	import type { BaseProps } from '../types.js';
 
-  import type { MeterElement } from './meter';
+	import type { MeterElement } from './meter.js';
 
-  export let definition: MeterElement;
-  export let form: FormInstance<FormGenerator, Readonly<BaseElement<string>[]>>;
+	let { definition, form }: BaseProps<MeterElement> = $props();
 
-  $: realParams = form.resolveParams(definition);
-  $: realValue = form.resolveField(definition.value);
+	let realParams = $derived(form.resolveParams(definition));
+	let realValue = $derived(form.resolveField(definition.value));
 </script>
 
-<meter {...$realParams} value={$realValue} />
+<meter {...$realParams} value={$realValue}></meter>
