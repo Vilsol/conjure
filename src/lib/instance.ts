@@ -4,6 +4,7 @@ import type { ZodObject, ZodTypeAny } from 'zod';
 import * as zod from 'zod';
 import { ZodDefault } from 'zod';
 
+import type { SelectOption } from './base-components/select.js';
 import type { FormGenerator } from './generator.js';
 import type { ArrayElement, BaseElement, ObjectElement, Resolvable } from './types.js';
 import { getPath, setPath } from './utils/path.js';
@@ -51,10 +52,17 @@ const coerceValue = (el: NamedControl): unknown => {
 	return el.value;
 };
 
-const syncControls = (node: HTMLFormElement, data: unknown) => {
+type SelectOptionsMap = ReadonlyMap<string, Readonly<SelectOption[]>>;
+
+const syncControls = (node: HTMLFormElement, data: unknown, selectOptions?: SelectOptionsMap) => {
 	const controls = node.querySelectorAll<NamedControl>('input[name], textarea[name], select[name]');
 	for (const el of controls) {
 		const value = getPath(data, el.name);
+		if (el instanceof HTMLSelectElement && selectOptions?.has(el.name)) {
+			// Svelte owns a spread select's value; the component renders the
+			// selection declaratively from the data store instead.
+			continue;
+		}
 		if (el instanceof HTMLInputElement && el.type === 'checkbox') {
 			const next = !!value;
 			if (el.checked !== next) {
@@ -124,6 +132,7 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 	private readonly data: Writable<ReMapper<E>>;
 	private readonly allErrors = writable<Record<string, string[]>>({});
 	private readonly touched = writable<Record<string, boolean>>({});
+	private readonly selectOptions = new Map<string, Readonly<SelectOption[]>>();
 
 	constructor(
 		public generator: T,
@@ -152,7 +161,7 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 				if (!el || !el.name) {
 					return;
 				}
-				this.data.update((data) => setPath(data, el.name, coerceValue(el)));
+				this.data.update((data) => setPath(data, el.name, this.resolveControlValue(el)));
 				this.touched.update((touched) => ({ ...touched, [el.name]: true }));
 				this.validate();
 			};
@@ -166,7 +175,7 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 			};
 
 			const unsubscribe = this.data.subscribe((data) => {
-				syncControls(node, data);
+				syncControls(node, data, this.selectOptions);
 			});
 
 			node.addEventListener('input', handleInput);
@@ -186,6 +195,39 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 
 	getData(): Writable<ReMapper<E>> {
 		return this.data;
+	}
+
+	/**
+	 * Coerce a control's DOM value, resolving index-encoded select options
+	 * back to their original option values.
+	 */
+	private resolveControlValue(el: NamedControl): unknown {
+		const value = coerceValue(el);
+		if (!(el instanceof HTMLSelectElement)) {
+			return value;
+		}
+		const options = this.selectOptions.get(el.name);
+		if (!options) {
+			return value;
+		}
+		if (Array.isArray(value)) {
+			return value.map((index) => options[Number(index)]?.value);
+		}
+		return value === '' ? undefined : options[Number(value)]?.value;
+	}
+
+	/**
+	 * Register the currently resolved options of a select-like control so
+	 * selections resolve to the original option values (objects included).
+	 * Controls rendered by conjure register automatically; custom elements
+	 * can do the same and encode the option index as the DOM value.
+	 */
+	registerSelectOptions(name: string, options: Readonly<SelectOption[]>): void {
+		this.selectOptions.set(name, options);
+	}
+
+	unregisterSelectOptions(name: string): void {
+		this.selectOptions.delete(name);
 	}
 
 	/**

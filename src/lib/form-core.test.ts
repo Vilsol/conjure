@@ -300,6 +300,89 @@ describe('initial data', () => {
 	});
 });
 
+describe('select object values', () => {
+	const colors = [
+		{ label: 'Red', value: { id: 1, hex: '#f00' } },
+		{ label: 'Blue', value: { id: 2, hex: '#00f' } }
+	];
+
+	it('puts the original option object into form data when selected', async () => {
+		const { target, form } = await mountForm([
+			{ type: 'select', name: 'color', schema: z.object({ id: z.number(), hex: z.string() }), options: colors }
+		] as never);
+
+		const select = target.querySelector('select')!;
+		select.options[1].selected = true;
+		select.dispatchEvent(new Event('change', { bubbles: true }));
+		await tick();
+
+		expect(get(form.getData())).toMatchObject({ color: { id: 2, hex: '#00f' } });
+	});
+
+	it('still resolves string option values to the string itself', async () => {
+		const { target, form } = await mountForm([
+			{
+				type: 'select',
+				name: 'size',
+				schema: z.string(),
+				options: [
+					{ label: 'Small', value: 's' },
+					{ label: 'Large', value: 'l' }
+				]
+			}
+		] as never);
+
+		const select = target.querySelector('select')!;
+		select.options[1].selected = true;
+		select.dispatchEvent(new Event('change', { bubbles: true }));
+		await tick();
+
+		expect(get(form.getData())).toMatchObject({ size: 'l' });
+	});
+
+	it('selects the matching option for provided edit data', async () => {
+		const { target } = await mountForm(
+			[
+				{
+					type: 'select',
+					name: 'color',
+					schema: z.object({ id: z.number(), hex: z.string() }),
+					options: colors
+				}
+			] as never,
+			{ data: { color: { id: 2, hex: '#00f' } } } as never
+		);
+
+		const select = target.querySelector('select')!;
+		expect(select.selectedIndex).toBe(1);
+	});
+
+	it('resolves multiple selections to an array of option objects', async () => {
+		const { target, form } = await mountForm([
+			{
+				type: 'select',
+				name: 'colors',
+				schema: z.array(z.object({ id: z.number(), hex: z.string() })),
+				options: colors,
+				params: { multiple: true }
+			}
+		] as never);
+
+		const select = target.querySelector('select')!;
+		select.options[0].selected = true;
+		select.options[1].selected = true;
+		select.dispatchEvent(new Event('change', { bubbles: true }));
+		await tick();
+
+		expect(get(form.getData())).toMatchObject({
+			colors: [
+				{ id: 1, hex: '#f00' },
+				{ id: 2, hex: '#00f' }
+			]
+		});
+	});
+});
+
 describe('touched store', () => {
 	it('starts with no touched fields', () => {
 		const form = Base.newForm([{ type: 'input', name: 'email', schema: z.string() }] as never);

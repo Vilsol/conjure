@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Label from '$lib/common/Label.svelte';
 	import Wrapper from '$lib/common/Wrapper.svelte';
+	import { deepEqual } from '$lib/utils/equal.js';
+	import { getPath } from '$lib/utils/path.js';
 	import type { BaseProps } from '../types.js';
 
 	import type { SelectElement } from './select.js';
@@ -11,8 +13,34 @@
 	const realOptions = $derived(form.resolveField(definition.options));
 	const fieldName = $derived(prefix + definition.name);
 	const errors = $derived(form.getErrors());
+	const data = $derived(form.getData());
+
+	// Options are rendered with their index as the DOM value; the selection
+	// is derived from the data store by structural equality so option values
+	// can be arbitrary objects.
+	const selectedValue = $derived.by(() => {
+		const options = $realOptions;
+		if (!options) {
+			return undefined;
+		}
+		const value = getPath($data, fieldName);
+		if (($realParams as { multiple?: boolean }).multiple) {
+			const values = Array.isArray(value) ? value : [];
+			return options.flatMap((option, index) => (values.some((v) => deepEqual(v, option.value)) ? [index] : []));
+		}
+		const index = options.findIndex((option) => deepEqual(option.value, value));
+		return index === -1 ? undefined : index;
+	});
 
 	const WrapperElement = $derived(definition.components?.wrapper || Wrapper);
+
+	$effect(() => {
+		const options = $realOptions;
+		if (options) {
+			form.registerSelectOptions(fieldName, options);
+		}
+		return () => form.unregisterSelectOptions(fieldName);
+	});
 </script>
 
 <WrapperElement>
@@ -23,10 +51,10 @@
 		</LabelElement>
 	{/if}
 
-	<select id={fieldName} name={fieldName} {...$realParams}>
+	<select id={fieldName} name={fieldName} {...$realParams} value={selectedValue}>
 		{#if $realOptions}
-			{#each $realOptions as option (option.value)}
-				<option value={option.value}>{option.label}</option>
+			{#each $realOptions as option, index (option.value)}
+				<option value={index}>{option.label}</option>
 			{/each}
 		{/if}
 	</select>
