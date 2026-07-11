@@ -28,6 +28,8 @@ export type ReMapper<E extends Readonly<BaseElement<string>[]>> = {
 };
 
 export interface FormOptions<D> {
+	/** Existing values to edit, merged over element/schema defaults. */
+	data?: Partial<D>;
 	onSubmit?: (data: D) => void;
 }
 
@@ -67,6 +69,24 @@ const syncControls = (node: HTMLFormElement, data: unknown) => {
 			if (el.value !== '') {
 				el.value = '';
 			}
+		}
+	}
+};
+
+const deepMerge = (target: Record<string, unknown>, source: Record<string, unknown>) => {
+	for (const [key, value] of Object.entries(source)) {
+		const existing = target[key];
+		if (
+			value !== null &&
+			typeof value === 'object' &&
+			!Array.isArray(value) &&
+			existing !== null &&
+			typeof existing === 'object' &&
+			!Array.isArray(existing)
+		) {
+			deepMerge(existing as Record<string, unknown>, value as Record<string, unknown>);
+		} else {
+			target[key] = value;
 		}
 	}
 };
@@ -112,6 +132,9 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 	) {
 		const seed: Record<string, unknown> = {};
 		seedDefaults(elements, seed);
+		if (options.data) {
+			deepMerge(seed, structuredClone(options.data));
+		}
 		this.data = writable(seed as ReMapper<E>);
 	}
 

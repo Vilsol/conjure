@@ -223,6 +223,83 @@ describe('initial values', () => {
 	});
 });
 
+describe('initial data', () => {
+	it('seeds the data store from a provided data object', () => {
+		const form = Base.newForm([{ type: 'input', name: 'email', schema: z.string() }] as never, {
+			data: { email: 'stored@example.com' }
+		});
+
+		expect(get(form.getData())).toMatchObject({ email: 'stored@example.com' });
+	});
+
+	it('prefers provided data over element values and zod defaults', () => {
+		const form = Base.newForm(
+			[{ type: 'input', name: 'name', schema: z.string().default('anon'), value: 'explicit' }] as never,
+			{ data: { name: 'stored' } }
+		);
+
+		expect(get(form.getData())).toMatchObject({ name: 'stored' });
+	});
+
+	it('fills fields missing from the provided data with defaults', () => {
+		const form = Base.newForm(
+			[
+				{ type: 'input', name: 'email', schema: z.string() },
+				{ type: 'input', name: 'role', schema: z.string().default('member') }
+			] as never,
+			{ data: { email: 'stored@example.com' } }
+		);
+
+		expect(get(form.getData())).toMatchObject({ email: 'stored@example.com', role: 'member' });
+	});
+
+	it('merges nested objects with defaults', () => {
+		const form = Base.newForm(
+			[
+				{
+					type: 'object',
+					name: 'address',
+					schema: z.object({ street: z.string(), country: z.string() }),
+					elements: [
+						{ type: 'input', name: 'street', schema: z.string() },
+						{ type: 'input', name: 'country', schema: z.string().default('LV') }
+					]
+				}
+			] as never,
+			{ data: { address: { street: 'Main St' } } }
+		);
+
+		expect(get(form.getData())).toMatchObject({ address: { street: 'Main St', country: 'LV' } });
+	});
+
+	it('does not mutate the provided data object', async () => {
+		const data = { email: 'stored@example.com' };
+		const { target, form } = await mountForm(
+			[{ type: 'input', name: 'email', schema: z.string() }] as never,
+			{ data } as never
+		);
+
+		await setInput(target.querySelector('input')!, 'changed@example.com');
+
+		expect(get(form.getData())).toMatchObject({ email: 'changed@example.com' });
+		expect(data.email).toBe('stored@example.com');
+	});
+
+	it('renders provided data into inputs without marking fields touched', async () => {
+		const { target, form } = await mountForm(
+			[{ type: 'input', name: 'email', schema: z.string().min(20) }] as never,
+			{
+				data: { email: 'stored@example.com' }
+			} as never
+		);
+
+		expect(target.querySelector('input')!.value).toBe('stored@example.com');
+		expect(get(form.getTouched())).toEqual({});
+		const nonEmpty = [...target.querySelectorAll('.conjure-error')].filter((s) => (s.textContent ?? '') !== '');
+		expect(nonEmpty).toHaveLength(0);
+	});
+});
+
 describe('touched store', () => {
 	it('starts with no touched fields', () => {
 		const form = Base.newForm([{ type: 'input', name: 'email', schema: z.string() }] as never);
