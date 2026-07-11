@@ -16,6 +16,18 @@ describe('fromZod', () => {
 		expect(fromZod(z.string().url())).toEqual({ type: 'url' });
 	});
 
+	it('extracts email type from the top-level format schema', () => {
+		expect(fromZod(z.email())).toEqual({ type: 'email' });
+	});
+
+	it('extracts url type from the top-level format schema', () => {
+		expect(fromZod(z.url())).toEqual({ type: 'url' });
+	});
+
+	it('extracts constraints from format schemas', () => {
+		expect(fromZod(z.email().min(5).max(50))).toEqual({ type: 'email', min: 5, max: 50 });
+	});
+
 	it('extracts number type with min and max', () => {
 		expect(fromZod(z.number().min(1).max(5))).toEqual({ type: 'number', min: 1, max: 5 });
 	});

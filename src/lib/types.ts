@@ -1,7 +1,7 @@
 import 'svelte2tsx/svelte-jsx';
 
 import type { Readable } from 'svelte/store';
-import type { SomeZodObject, ZodArray, ZodTypeAny } from 'zod';
+import type { ZodArray, ZodObject, ZodTypeAny } from 'zod';
 import type { Component } from 'svelte';
 import type { FormInstance } from '$lib/instance.js';
 import type { FormGenerator } from '$lib/generator.js';
@@ -36,7 +36,7 @@ export interface ArrayElement<T extends BaseElement<string>> extends BaseElement
 
 export interface ObjectElement<T extends BaseElement<string>> extends BaseElement<'object'> {
 	name: string;
-	schema: SomeZodObject;
+	schema: ZodObject;
 	elements: Readonly<(T | ObjectElement<T> | ArrayElement<T>)[]>;
 }
 

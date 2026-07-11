@@ -1,6 +1,6 @@
 import type { Readable, Writable } from 'svelte/store';
 import { derived, get, writable } from 'svelte/store';
-import type { ZodObject, ZodRawShape, ZodTypeAny } from 'zod';
+import type { ZodObject, ZodTypeAny } from 'zod';
 import * as zod from 'zod';
 
 import type { FormGenerator } from './generator.js';
@@ -240,9 +240,9 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 	}
 
 	// TODO Support various validators
-	getValidationSchema(): ZodObject<ZodRawShape> {
+	getValidationSchema(): ZodObject {
 		return zod.object(
-			this.elements.reduce<ZodRawShape>((base, value) => {
+			this.elements.reduce<Record<string, ZodTypeAny>>((base, value) => {
 				if ('schema' in value && 'name' in value) {
 					base[value.name as string] = value.schema as ZodTypeAny;
 				}

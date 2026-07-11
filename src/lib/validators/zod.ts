@@ -1,4 +1,4 @@
-import { ZodDefault, ZodNullable, ZodNumber, ZodOptional, ZodString } from 'zod';
+import { ZodDefault, ZodNullable, ZodNumber, ZodOptional, ZodString, ZodStringFormat } from 'zod';
 import type { ZodTypeAny } from 'zod';
 
 import type { ValidatorDefinition } from './types.js';
@@ -6,9 +6,9 @@ import type { ValidatorDefinition } from './types.js';
 const unwrap = (schema: ZodTypeAny): ZodTypeAny => {
 	for (;;) {
 		if (schema instanceof ZodOptional || schema instanceof ZodNullable) {
-			schema = (schema as ZodOptional<ZodTypeAny>).unwrap();
+			schema = schema.unwrap() as ZodTypeAny;
 		} else if (schema instanceof ZodDefault) {
-			schema = (schema as ZodDefault<ZodTypeAny>).removeDefault();
+			schema = schema.removeDefault() as ZodTypeAny;
 		} else {
 			return schema;
 		}
@@ -20,16 +20,17 @@ export const fromZod = (schema: ZodTypeAny): ValidatorDefinition => {
 
 	schema = unwrap(schema);
 
-	if (schema instanceof ZodString) {
-		if (schema.isEmail) {
+	if (schema instanceof ZodString || schema instanceof ZodStringFormat) {
+		const format = 'format' in schema ? schema.format : null;
+		if (format === 'email') {
 			def.type = 'email';
 		}
 
-		if (schema.isURL) {
+		if (format === 'url') {
 			def.type = 'url';
 		}
 
-		if (schema.minLength !== null && schema.minLength !== -Infinity) {
+		if (schema.minLength !== null) {
 			def.min = schema.minLength;
 		}
 
@@ -40,11 +41,11 @@ export const fromZod = (schema: ZodTypeAny): ValidatorDefinition => {
 
 	if (schema instanceof ZodNumber) {
 		def.type = 'number';
-		if (schema.minValue !== null) {
+		if (schema.minValue !== null && Number.isFinite(schema.minValue)) {
 			def.min = schema.minValue;
 		}
 
-		if (schema.maxValue !== null) {
+		if (schema.maxValue !== null && Number.isFinite(schema.maxValue)) {
 			def.max = schema.maxValue;
 		}
 	}
