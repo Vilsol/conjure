@@ -2,6 +2,7 @@ import type { Readable, Writable } from 'svelte/store';
 import { derived, get, writable } from 'svelte/store';
 import type { ZodObject, ZodTypeAny } from 'zod';
 import * as zod from 'zod';
+import { ZodDefault } from 'zod';
 
 import type { FormGenerator } from './generator.js';
 import type { ArrayElement, BaseElement, ObjectElement, Resolvable } from './types.js';
@@ -70,6 +71,35 @@ const syncControls = (node: HTMLFormElement, data: unknown) => {
 	}
 };
 
+const initialValue = (element: BaseElement<string>): unknown => {
+	if ('value' in element && element.value !== undefined) {
+		return element.value;
+	}
+	if ('schema' in element && element.schema instanceof ZodDefault) {
+		return (element.schema as ZodTypeAny).parse(undefined);
+	}
+	return undefined;
+};
+
+const seedDefaults = (elements: Readonly<BaseElement<string>[]>, data: Record<string, unknown>, prefix = '') => {
+	for (const element of elements) {
+		if (!('name' in element) || typeof element.name !== 'string') {
+			continue;
+		}
+		if (element.type === 'object' && 'elements' in element) {
+			seedDefaults((element as ObjectElement<BaseElement<string>>).elements, data, prefix + element.name + '.');
+			continue;
+		}
+		if (!('schema' in element)) {
+			continue;
+		}
+		const value = initialValue(element);
+		if (value !== undefined) {
+			setPath(data, prefix + element.name, value);
+		}
+	}
+};
+
 export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extends Readonly<BaseElement<string>[]>> {
 	private readonly data: Writable<ReMapper<E>>;
 	private readonly allErrors = writable<Record<string, string[]>>({});
@@ -80,7 +110,9 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 		public elements: E,
 		private options: FormOptions<ReMapper<E>> = {}
 	) {
-		this.data = writable({} as ReMapper<E>);
+		const seed: Record<string, unknown> = {};
+		seedDefaults(elements, seed);
+		this.data = writable(seed as ReMapper<E>);
 	}
 
 	/**
@@ -131,6 +163,23 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 
 	getData(): Writable<ReMapper<E>> {
 		return this.data;
+	}
+
+	/**
+	 * Fields the user has interacted with, keyed by field path. After a
+	 * submit attempt the `'*'` key marks every field as touched.
+	 */
+	getTouched(): Readable<Record<string, boolean>> {
+		return this.touched;
+	}
+
+	/**
+	 * Whether the current data satisfies the composed schema, re-evaluated
+	 * on every data change.
+	 */
+	isValid(): Readable<boolean> {
+		const schema = this.getValidationSchema();
+		return derived(this.data, ($data) => schema.safeParse($data).success);
 	}
 
 	/**

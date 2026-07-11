@@ -8,6 +8,5 @@ Supported validators:
 
 ## TODO
 
-1. Default values
-2. Previous values
-3. Resolved data objects
+1. Previous values
+2. Resolved data objects

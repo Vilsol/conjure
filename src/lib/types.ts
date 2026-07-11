@@ -43,6 +43,7 @@ export interface ObjectElement<T extends BaseElement<string>> extends BaseElemen
 export interface BaseInput<T extends string> extends BaseElement<T> {
 	name: string;
 	schema: ZodTypeAny;
+	value?: unknown;
 	label?: string;
 	components?: {
 		wrapper?: Component;

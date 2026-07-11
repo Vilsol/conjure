@@ -169,6 +169,103 @@ describe('submit handling', () => {
 	});
 });
 
+describe('initial values', () => {
+	it('seeds the data store from element values', () => {
+		const form = Base.newForm([
+			{ type: 'input', name: 'email', schema: z.string(), value: 'preset@example.com' }
+		] as never);
+
+		expect(get(form.getData())).toMatchObject({ email: 'preset@example.com' });
+	});
+
+	it('seeds the data store from zod defaults', () => {
+		const form = Base.newForm([{ type: 'input', name: 'name', schema: z.string().default('anon') }] as never);
+
+		expect(get(form.getData())).toMatchObject({ name: 'anon' });
+	});
+
+	it('prefers the element value over the zod default', () => {
+		const form = Base.newForm([
+			{ type: 'input', name: 'name', schema: z.string().default('anon'), value: 'explicit' }
+		] as never);
+
+		expect(get(form.getData())).toMatchObject({ name: 'explicit' });
+	});
+
+	it('seeds nested object element values under dot paths', () => {
+		const form = Base.newForm([
+			{
+				type: 'object',
+				name: 'address',
+				schema: z.object({ street: z.string() }),
+				elements: [{ type: 'input', name: 'street', schema: z.string(), value: 'Main St' }]
+			}
+		] as never);
+
+		expect(get(form.getData())).toMatchObject({ address: { street: 'Main St' } });
+	});
+
+	it('renders seeded values into inputs on mount', async () => {
+		const { target } = await mountForm([
+			{ type: 'input', name: 'email', schema: z.string(), value: 'preset@example.com' }
+		] as never);
+
+		expect(target.querySelector('input')!.value).toBe('preset@example.com');
+	});
+
+	it('does not show validation messages for seeded fields', async () => {
+		const { target } = await mountForm([
+			{ type: 'input', name: 'email', schema: z.string().min(20), value: 'short' }
+		] as never);
+
+		const nonEmpty = [...target.querySelectorAll('.conjure-error')].filter((s) => (s.textContent ?? '') !== '');
+		expect(nonEmpty).toHaveLength(0);
+	});
+});
+
+describe('touched store', () => {
+	it('starts with no touched fields', () => {
+		const form = Base.newForm([{ type: 'input', name: 'email', schema: z.string() }] as never);
+
+		expect(get(form.getTouched())).toEqual({});
+	});
+
+	it('marks a field touched after user input', async () => {
+		const { target, form } = await mountForm([{ type: 'input', name: 'email', schema: z.string() }] as never);
+
+		await setInput(target.querySelector('input')!, 'abc');
+
+		expect(get(form.getTouched())).toMatchObject({ email: true });
+	});
+});
+
+describe('isValid store', () => {
+	it('reports invalid while required fields are missing', () => {
+		const form = Base.newForm([{ type: 'input', name: 'email', schema: z.string().min(3) }] as never);
+
+		expect(get(form.isValid())).toBe(false);
+	});
+
+	it('reports valid when seeded defaults satisfy the schema', () => {
+		const form = Base.newForm([{ type: 'input', name: 'email', schema: z.string().min(3).default('hello') }] as never);
+
+		expect(get(form.isValid())).toBe(true);
+	});
+
+	it('updates reactively as the user types', async () => {
+		const { target, form } = await mountForm([{ type: 'input', name: 'email', schema: z.string().min(3) }] as never);
+
+		const seen: boolean[] = [];
+		const unsubscribe = form.isValid().subscribe((valid: boolean) => seen.push(valid));
+
+		await setInput(target.querySelector('input')!, 'hello');
+
+		unsubscribe();
+		expect(seen[0]).toBe(false);
+		expect(seen.at(-1)).toBe(true);
+	});
+});
+
 describe('programmatic data updates', () => {
 	it('updates input values when data is set programmatically', async () => {
 		const { target, form } = await mountForm([{ type: 'input', name: 'email', schema: z.string() }] as never);
