@@ -51,7 +51,7 @@
 		</LabelElement>
 	{/if}
 
-	<select id={fieldName} name={fieldName} {...$realParams} value={selectedValue}>
+	<select id={fieldName} name={fieldName} {...$realParams} value={selectedValue} data-conjure-managed>
 		{#if $realOptions}
 			{#each $realOptions as option, index (option.value)}
 				<option value={index}>{option.label}</option>

@@ -487,3 +487,75 @@ describe('common component params', () => {
 		firstCleanup?.();
 	});
 });
+
+describe('radio groups', () => {
+	const radioElements = [
+		{ type: 'input', name: 'color', schema: z.string(), params: { type: 'radio', value: 'red' } },
+		{ type: 'input', name: 'color', schema: z.string(), params: { type: 'radio', value: 'blue' } }
+	] as never;
+
+	it('keeps radio values intact and checks the radio matching the data', async () => {
+		const { target, form } = await mountForm(radioElements);
+
+		form.getData().set({ color: 'blue' });
+		await tick();
+		flushSync();
+
+		const radios = [...target.querySelectorAll('input')];
+		expect(radios.map((r) => r.value)).toEqual(['red', 'blue']);
+		expect(radios.map((r) => r.checked)).toEqual([false, true]);
+	});
+
+	it('writes the selected radio value into data on change', async () => {
+		const { target, form } = await mountForm(radioElements);
+
+		const blue = [...target.querySelectorAll('input')][1];
+		blue.checked = true;
+		blue.dispatchEvent(new Event('change', { bubbles: true }));
+		await tick();
+
+		expect(get(form.getData())).toMatchObject({ color: 'blue' });
+	});
+});
+
+describe('hand-written controls via createForm', () => {
+	const rawForm = (form: { createForm: () => (node: HTMLFormElement) => { destroy: () => void } }, html: string) => {
+		const node = document.createElement('form');
+		node.innerHTML = html;
+		document.body.appendChild(node);
+		const action = form.createForm()(node);
+		cleanup = () => {
+			action.destroy();
+			node.remove();
+		};
+		return node;
+	};
+
+	it('syncs unmanaged radio groups by checked state, not value', async () => {
+		const form = Base.newForm([{ type: 'input', name: 'color', schema: z.string() }] as never);
+		const node = rawForm(
+			form,
+			'<input type="radio" name="color" value="red" /><input type="radio" name="color" value="blue" />'
+		);
+
+		form.getData().set({ color: 'blue' });
+		await tick();
+
+		const radios = [...node.querySelectorAll('input')];
+		expect(radios.map((r) => r.value)).toEqual(['red', 'blue']);
+		expect(radios.map((r) => r.checked)).toEqual([false, true]);
+	});
+
+	it('reads File objects from file inputs', async () => {
+		const form = Base.newForm([{ type: 'input', name: 'doc', schema: z.any() }] as never);
+		const node = rawForm(form, '<input type="file" name="doc" />');
+
+		const input = node.querySelector('input')!;
+		const file = new File(['x'], 'x.txt', { type: 'text/plain' });
+		Object.defineProperty(input, 'files', { value: [file] });
+		input.dispatchEvent(new Event('change', { bubbles: true }));
+		await tick();
+
+		expect((get(form.getData()) as { doc?: unknown }).doc).toBe(file);
+	});
+});

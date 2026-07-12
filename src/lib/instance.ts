@@ -49,6 +49,9 @@ const coerceValue = (el: NamedControl): unknown => {
 		if (el.type === 'number' || el.type === 'range') {
 			return el.value === '' ? undefined : el.valueAsNumber;
 		}
+		if (el.type === 'file') {
+			return el.multiple ? [...(el.files ?? [])] : (el.files?.[0] ?? undefined);
+		}
 		return el.value;
 	}
 	if (el instanceof HTMLSelectElement && el.multiple) {
@@ -57,19 +60,27 @@ const coerceValue = (el: NamedControl): unknown => {
 	return el.value;
 };
 
-type SelectOptionsMap = ReadonlyMap<string, Readonly<SelectOption[]>>;
-
-const syncControls = (node: HTMLFormElement, data: unknown, selectOptions?: SelectOptionsMap) => {
+const syncControls = (node: HTMLFormElement, data: unknown) => {
 	const controls = node.querySelectorAll<NamedControl>('input[name], textarea[name], select[name]');
 	for (const el of controls) {
+		// Managed controls render their value declaratively from the data
+		// store; writing to them here would fight Svelte for ownership.
+		if (el.hasAttribute('data-conjure-managed')) {
+			continue;
+		}
 		const value = getPath(data, el.name);
-		if (el instanceof HTMLSelectElement && selectOptions?.has(el.name)) {
-			// Svelte owns a spread select's value; the component renders the
-			// selection declaratively from the data store instead.
+		if (el instanceof HTMLInputElement && el.type === 'file') {
 			continue;
 		}
 		if (el instanceof HTMLInputElement && el.type === 'checkbox') {
 			const next = !!value;
+			if (el.checked !== next) {
+				el.checked = next;
+			}
+		} else if (el instanceof HTMLInputElement && el.type === 'radio') {
+			const next =
+				(typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') &&
+				String(value) === el.value;
 			if (el.checked !== next) {
 				el.checked = next;
 			}
@@ -209,7 +220,7 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 			};
 
 			const unsubscribe = this.data.subscribe((data) => {
-				syncControls(node, data, this.selectOptions);
+				syncControls(node, data);
 			});
 
 			node.addEventListener('input', handleInput);
