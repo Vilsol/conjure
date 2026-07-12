@@ -1,41 +1,56 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="dark">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="description" content="" />
-    <link rel="icon" href="./favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <script>
-      const key = 'svelteness::color-scheme';
-      const scheme = localStorage[key];
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (scheme === 'dark' || (scheme !== 'light' && prefersDark)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    </script>
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content="Conjure" />
+		<meta property="og:url" content="https://conjure.rocks" />
+		<meta property="og:description" content="A magical form generator for Svelte" />
+		<meta property="og:image" content="https://conjure.rocks/android-chrome-512x512.png" />
+		<meta property="og:image:width" content="512" />
+		<meta property="og:image:height" content="512" />
 
-    <meta http-equiv="content-security-policy" content="">
-	<link rel="modulepreload" href="/_app/start-3d3d4a21.js">
-	<link rel="modulepreload" href="/_app/chunks/index-9bffbb89.js">
-	<link rel="modulepreload" href="/_app/chunks/singletons-4999ee60.js">
-	<link rel="modulepreload" href="/_app/chunks/paths-396f020f.js">
-  </head>
-  <body>
-    <div>
-		<script type="module" data-hydrate="45h">
-		import { start } from "/_app/start-3d3d4a21.js";
-		start({
-			target: document.querySelector('[data-hydrate="45h"]').parentNode,
-			paths: {"base":"","assets":""},
-			session: {},
-			route: true,
-			spa: true,
-			trailing_slash: "never",
-			hydrate: null
-		});
-	</script></div>
-  </body>
+		<link rel="icon" href="/favicon.png" />
+		<link rel="alternate icon" href="/favicon.png" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<link rel="mask-icon" href="/conjure-logo-small.png" color="#ffffff" />
+		<meta name="msapplication-TileColor" content="#ffffff" />
+		<link rel="shortcut icon" type="image/png" href="/android-chrome-192x192.png" />
+
+		<link href="/_app/immutable/entry/start.CdR6grUn.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BWhsQL6o.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/QMi6JGeZ.js" rel="modulepreload">
+		<link href="/_app/immutable/entry/app.DHLftOWl.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/HclGiUj8.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/xihTtKlq.js" rel="modulepreload">
+		<link href="/_app/immutable/nodes/0.gkvESQUd.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/9RqAFrzj.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BdSPWLQI.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BSHmLoCb.js" rel="modulepreload">
+		
+		<link href="/_app/immutable/assets/Expansion.z3iorIxf.css" rel="stylesheet">
+		<link href="/_app/immutable/assets/0.ZY84LimC.css" rel="stylesheet">
+	</head>
+	<body>
+		<div>
+			<script>
+				{
+					__sveltekit_59444w = {
+						base: ""
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/_app/immutable/entry/start.CdR6grUn.js"),
+						import("/_app/immutable/entry/app.DHLftOWl.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
+	</body>
 </html>
