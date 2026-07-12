@@ -47,7 +47,8 @@ export class FormGenerator<T extends BaseElement<string> = never> {
 
 	/**
 	 * Register a structural container component (array/object) without
-	 * adding it to the element type union
+	 * adding it to the element type union.
+	 * Overwrites any existing registration for `type`, including its validator converter.
 	 * @param type Container type name
 	 * @param component Container component
 	 */
