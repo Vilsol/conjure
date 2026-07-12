@@ -158,6 +158,7 @@ interface SchemaNode {
 	children?: SchemaNode[];
 }
 
+// Traversal order and the stored hide resolvables are consumed by the hidden-field exclusion wiring in FormInstance.
 const buildSchemaNodes = (elements: Readonly<BaseElement<string>[]>): SchemaNode[] => {
 	const nodes: SchemaNode[] = [];
 	for (const element of elements) {
