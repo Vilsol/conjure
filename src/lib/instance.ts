@@ -135,9 +135,11 @@ const seedDefaults = (elements: Readonly<BaseElement<string>[]>, data: Record<st
 
 export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extends Readonly<BaseElement<string>[]>> {
 	private readonly data: Writable<ReMapper<E>>;
-	private readonly allErrors = writable<Record<string, string[]>>({});
 	private readonly touched = writable<Record<string, boolean>>({});
 	private readonly selectOptions = new Map<string, Readonly<SelectOption[]>>();
+	private readonly schema: ZodObject;
+	private readonly validation: Readable<{ valid: boolean; errors: Record<string, string[]> }>;
+	private readonly errors: Readable<Record<string, string[]>>;
 
 	constructor(
 		public generator: T,
@@ -150,6 +152,34 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 			deepMerge(seed, structuredClone(options.data) as Record<string, unknown>);
 		}
 		this.data = writable(seed as ReMapper<E>);
+
+		// TODO Support various validators
+		this.schema = zod.object(
+			elements.reduce<Record<string, ZodTypeAny>>((base, value) => {
+				if ('schema' in value && 'name' in value) {
+					base[value.name as string] = value.schema as ZodTypeAny;
+				}
+				return base;
+			}, {})
+		);
+		this.validation = derived(this.data, ($data) => {
+			const result = this.schema.safeParse($data);
+			if (result.success) {
+				return { valid: true, errors: {} };
+			}
+			const errors: Record<string, string[]> = {};
+			for (const issue of result.error.issues) {
+				const key = issue.path.join('.');
+				(errors[key] ??= []).push(issue.message);
+			}
+			return { valid: false, errors };
+		});
+		this.errors = derived([this.validation, this.touched], ([$validation, $touched]) => {
+			if ($touched['*']) {
+				return $validation.errors;
+			}
+			return Object.fromEntries(Object.entries($validation.errors).filter(([key]) => $touched[key]));
+		});
 	}
 
 	/**
@@ -168,7 +198,6 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 				}
 				this.data.update((data) => setPath(data, el.name, this.resolveControlValue(el)));
 				this.touched.update((touched) => ({ ...touched, [el.name]: true }));
-				this.validate();
 			};
 
 			const handleSubmit = (event: Event) => {
@@ -248,8 +277,7 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 	 * on every data change.
 	 */
 	isValid(): Readable<boolean> {
-		const schema = this.getValidationSchema();
-		return derived(this.data, ($data) => schema.safeParse($data).success);
+		return derived(this.validation, ($validation) => $validation.valid);
 	}
 
 	/**
@@ -257,32 +285,15 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 	 * (all fields count as touched after a submit attempt).
 	 */
 	getErrors(): Readable<Record<string, string[]>> {
-		return derived([this.allErrors, this.touched], ([$errors, $touched]) => {
-			if ($touched['*']) {
-				return $errors;
-			}
-			return Object.fromEntries(Object.entries($errors).filter(([key]) => $touched[key]));
-		});
+		return this.errors;
 	}
 
 	/**
-	 * Validate the current data against the composed schema, updating the
-	 * error store. Returns whether the data is valid.
+	 * Whether the current data is valid. Validation state itself is derived
+	 * from the data store, so this is a read, not a mutation.
 	 */
 	validate(): boolean {
-		const result = this.getValidationSchema().safeParse(get(this.data));
-		if (result.success) {
-			this.allErrors.set({});
-			return true;
-		}
-
-		const errors: Record<string, string[]> = {};
-		for (const issue of result.error.issues) {
-			const key = issue.path.join('.');
-			(errors[key] ??= []).push(issue.message);
-		}
-		this.allErrors.set(errors);
-		return false;
+		return get(this.validation).valid;
 	}
 
 	resolveParams<X extends { [key: string]: unknown }>(
@@ -371,13 +382,6 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 
 	// TODO Support various validators
 	getValidationSchema(): ZodObject {
-		return zod.object(
-			this.elements.reduce<Record<string, ZodTypeAny>>((base, value) => {
-				if ('schema' in value && 'name' in value) {
-					base[value.name as string] = value.schema as ZodTypeAny;
-				}
-				return base;
-			}, {})
-		);
+		return this.schema;
 	}
 }

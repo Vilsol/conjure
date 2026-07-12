@@ -448,4 +448,15 @@ describe('programmatic data updates', () => {
 
 		expect(target.querySelector('input')!.checked).toBe(true);
 	});
+
+	it('updates validation errors when data is set programmatically', async () => {
+		const { target, form } = await mountForm([{ type: 'input', name: 'email', schema: z.string().min(5) }] as never);
+
+		await setInput(target.querySelector('input')!, 'valid input');
+		form.getData().set({ email: 'x' });
+		await tick();
+		flushSync();
+
+		expect(target.querySelector('.conjure-error')!.textContent).toBeTruthy();
+	});
 });
