@@ -13,10 +13,12 @@ In addition, it has the following attributes:
 | Attribute  | Required                              | Description             | Type                                                 | Example                                                                  |
 |------------|---------------------------------------|:------------------------|------------------------------------------------------|--------------------------------------------------------------------------|
 | `name`     | <strong class="required">Yes</strong> | Name of the field       | string                                               | <CodeBlock lang="ts" code="'user'" />                                    |
-| `schema`   | <strong class="required">Yes</strong> | Validation schema       | ZodObject                                            | <CodeBlock lang="ts" code="{'zod.object({})'}" />                        |
+| `schema`   | No                                    | Validation schema       | ZodObject                                            | <CodeBlock lang="ts" code="{'zod.object({})'}" />                        |
 | `elements` | <strong class="required">Yes</strong> | The sub-elements schema | [`BaseElement[]`](../../configuration/base-element/) | <CodeBlock lang="ts" code="{'[{type: \'header\', text: \'Hello\'}]'}" /> |
 
 </div>
+
+When `schema` is omitted, the object's validation schema is derived recursively from its `elements`' own schemas instead — so nested objects don't need to duplicate their children's schemas by hand. Providing an explicit `schema` always wins, and it is authoritative: hidden children are not filtered out of an explicit schema the way they are from a derived one.
 
 ## Example
 

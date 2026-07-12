@@ -130,7 +130,7 @@ Returns whether the current data is valid. Validation state is derived from the 
 
 ### getValidationSchema
 
-Returns the composed `ZodObject` built from the schemas of all named elements.
+Returns the currently effective `ZodObject`, composed from the schemas of all named elements: [object schemas without an explicit `schema`](../../meta-elements/object/) are derived from their children, and elements that are currently [hidden](../../configuration/base-element/#Hiding-and-validation) are excluded.
 
 ## Advanced
 

@@ -93,21 +93,22 @@ special case instead of adding one.
   (`src/lib/types.ts:23`) affects rendering only; `getValidationSchema`
   includes hidden elements, so a conditionally hidden required field makes
   the form permanently unsubmittable. Visibility should imply (or at least
-  document) validation behavior.
+  document) validation behavior. *Resolved (core-review-5 branch).*
 - **`Core`'s `'array' as never` casts** (`src/lib/base.ts:27-28`): array and
   object are structural containers, not user-facing element types, but are
   forced through the same `withType` channel. A separate registry slot for
   container types would remove the casts and stop `getComponent` lying about
-  what's registered.
+  what's registered. *Resolved (core-review-5 branch).*
 - **`withDefaultParam` is stringly typed** (`src/lib/generator.ts:68`):
   `{ [key: string]: string }` can't express `disabled: true` or numeric
   params, even though `resolveParams` merges these into arbitrary `X`.
-  `unknown` values would match reality.
+  `unknown` values would match reality. *Resolved (core-review-5 branch).*
 - **Duplicate schema authority for objects.** `ObjectElement` requires its own
   `ZodObject` *and* child elements each carry schemas — the user keeps them in
   sync by hand. Deriving the object schema from the children would also fix
   `getValidationSchema` only looking at top-level `elements` (nested
   validation currently works only because the user duplicated the structure).
+  *Resolved (core-review-5 branch).*
 - **`el.valueAsNumber`** (`src/lib/instance.ts:50`) yields `NaN` for
   partially-typed input like `1e`, which lands in the data store; guard with
   `Number.isNaN`. *Update: unreachable in practice — browsers report `''` for

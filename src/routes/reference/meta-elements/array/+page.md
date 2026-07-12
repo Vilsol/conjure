@@ -19,6 +19,8 @@ In addition, it has the following attributes:
 
 </div>
 
+A [`hide`](../../configuration/base-element/) on `element` is not consulted for validation — items are validated as a whole via the array's own `schema`, so a hide on the element definition only ever affects rendering.
+
 ## Example
 
 ```svelte live ln

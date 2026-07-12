@@ -14,7 +14,7 @@ The `<Form>` component renders a [form instance](../../configuration/instance/):
 
 - **Data binding** — any rendered control with a `name` attribute writes into the data store on `input`/`change`, and programmatic store updates are written back into the DOM.
 - **Submission** — submitting the form prevents the default navigation, marks all fields as touched, validates, and calls the instance's `onSubmit` option only when the data is valid.
-- **Hiding** — elements with a truthy [`hide`](../../configuration/base-element/) are not rendered; because `hide` is a [`Resolvable`](../../configuration/resolvable/), visibility can react to the form data itself.
+- **Hiding** — elements with a truthy [`hide`](../../configuration/base-element/) are not rendered; because `hide` is a [`Resolvable`](../../configuration/resolvable/), visibility can react to the form data itself. Hiding does not clear data: hidden values stay in the data store and are still validated as excluded (not required) rather than removed.
 
 ## Example
 

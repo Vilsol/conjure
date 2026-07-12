@@ -36,11 +36,22 @@ The type parameter accumulates: `new FormGenerator().withType<A>(…).withType<B
 
 ### withDefaultParam
 
-Sets a default HTML attribute for every element of a type. Element-level `params` override defaults.
+Sets a default HTML attribute for every element of a type. Element-level `params` override defaults. `value` accepts any value, not just strings — `disabled`, numeric params, etc. all work.
 
 ```ts
 const generator = Base.withDefaultParam('input', 'placeholder', 'Type here…');
+const disabled = Base.withDefaultParam('input', 'disabled', true);
 ```
+
+### withContainer
+
+Registers a structural container component (`array` or `object`) without extending the generator's element type union — containers aren't user-facing element types, so `newForm` doesn't need to know about them. Registering the same `type` again overwrites the previous registration.
+
+```ts
+const generator = new FormGenerator().withContainer('array', Array).withContainer('object', Object);
+```
+
+`Base` is built with `withContainer` for its `array` and `object` support.
 
 ### withCommonParam
 
