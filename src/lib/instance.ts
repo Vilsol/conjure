@@ -311,9 +311,15 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 			return derived(
 				this.data,
 				($data, set) => {
+					let cancelled = false;
 					void Promise.resolve(params($data as { [key: string]: unknown })).then((resolved) => {
-						set(merge(resolved));
+						if (!cancelled) {
+							set(merge(resolved));
+						}
 					});
+					return () => {
+						cancelled = true;
+					};
 				},
 				base
 			);
@@ -339,10 +345,16 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 	resolveField<X>(field: Resolvable<X>): Readable<X> {
 		if (typeof field === 'function') {
 			return derived(this.data, ($data, set) => {
+				let cancelled = false;
 				const resolvable = (field as (data: { [key: string]: unknown }) => X | PromiseLike<X>)($data);
 				void Promise.resolve(resolvable).then((resolved) => {
-					set(resolved);
+					if (!cancelled) {
+						set(resolved);
+					}
 				});
+				return () => {
+					cancelled = true;
+				};
 			});
 		}
 

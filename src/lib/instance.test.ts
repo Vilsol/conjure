@@ -103,6 +103,29 @@ describe('FormInstance', () => {
 			expect(get(params)).toEqual({ placeholder: 'Enter', class: 'green' });
 			unsubscribe();
 		});
+
+		it('ignores stale async param resolutions (latest wins)', async () => {
+			const form = makeGenerator().newForm([{ type: 'input', name: 'a', schema: z.string() }]);
+
+			const resolvers: ((params: { class: string }) => void)[] = [];
+			const params = form.resolveParams({
+				type: 'input',
+				name: 'a',
+				params: () => new Promise<{ class: string }>((resolve) => resolvers.push(resolve))
+			});
+			const unsubscribe = params.subscribe(() => undefined);
+			form.getData().set({ a: 'x' });
+			await tick();
+			expect(resolvers).toHaveLength(2);
+
+			resolvers[1]({ class: 'second' });
+			await tick();
+			resolvers[0]({ class: 'first' });
+			await tick();
+
+			expect(get(params)).toEqual({ class: 'second' });
+			unsubscribe();
+		});
 	});
 
 	describe('resolveField', () => {
@@ -164,6 +187,25 @@ describe('FormInstance', () => {
 			const field = form.resolveField(null as Resolvable<null>);
 			await tick();
 			expect(get(field)).toBeNull();
+		});
+
+		it('ignores stale async field resolutions (latest wins)', async () => {
+			const form = makeGenerator().newForm([{ type: 'input', name: 'a', schema: z.string() }]);
+
+			const resolvers: ((value: string) => void)[] = [];
+			const field = form.resolveField(() => new Promise<string>((resolve) => resolvers.push(resolve)));
+			const unsubscribe = field.subscribe(() => undefined);
+			form.getData().set({ a: 'x' });
+			await tick();
+			expect(resolvers).toHaveLength(2);
+
+			resolvers[1]('second');
+			await tick();
+			resolvers[0]('first');
+			await tick();
+
+			expect(get(field)).toBe('second');
+			unsubscribe();
 		});
 	});
 
