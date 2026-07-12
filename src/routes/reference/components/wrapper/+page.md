@@ -30,7 +30,7 @@ Like every generator method it returns a new generator, so different generators 
 
 ## Replacing the wrapper
 
-To replace the wrapper for a single element, pass your own component via `components.wrapper` on the element definition — see [`BaseInput`](../../configuration/base-input/#Components). Your component receives the element's content as its `children` snippet:
+To replace the wrapper for a single element, pass your own component via `components.wrapper` on the element definition — see [`BaseInput`](../../configuration/base-input/#Components). Your component receives the element's content as its `children` snippet, and a `params` prop containing the generator's common wrapper params, which it may honor or ignore:
 
 ```svelte
 <script lang="ts">

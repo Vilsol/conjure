@@ -101,7 +101,7 @@ export class FormGenerator<T extends BaseElement<string> = never> {
 	 * @param slot Common component slot
 	 */
 	getCommonParams(slot: CommonSlot): { [key: string]: unknown } {
-		return this.commonParams.get(slot) || {};
+		return { ...(this.commonParams.get(slot) || {}) };
 	}
 
 	/**

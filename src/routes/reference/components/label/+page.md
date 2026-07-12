@@ -18,4 +18,4 @@ Like every generator method it returns a new generator, so different generators 
 
 ## Replacing the label
 
-To replace the label wrapper for a single element, pass your own component via `components.label` on the element definition — see [`BaseInput`](../../configuration/base-input/#Components). Your component receives the `<label>` element as its `children` snippet.
+To replace the label wrapper for a single element, pass your own component via `components.label` on the element definition — see [`BaseInput`](../../configuration/base-input/#Components). Your component receives the `<label>` element as its `children` snippet, and a `params` prop containing the generator's common label params, which it may honor or ignore.
