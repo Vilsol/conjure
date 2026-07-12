@@ -6,10 +6,13 @@ import { z } from 'zod';
 
 import type { InputElement } from './base-components/input.js';
 import { fromValidatorToParams } from './base-components/input.js';
+import type { MeterElement } from './base-components/meter.js';
 import { FormGenerator } from './generator.js';
+import type { ReMapper } from './instance.js';
 import type { BaseProps, StripName } from './types.js';
 
 const DummyInput = (() => undefined) as unknown as Component<BaseProps<InputElement>>;
+const DummyMeter = (() => undefined) as unknown as Component<BaseProps<MeterElement>>;
 
 const makeGenerator = () =>
 	new FormGenerator().withType<InputElement, StripName<HTMLInputAttributes>>(
@@ -77,6 +80,32 @@ describe('ReMapper type inference', () => {
 		);
 
 		expectTypeOf(get(form.getData()).address).toEqualTypeOf<{ street: string; country: string }>();
+	});
+
+	it('accepts resolvable callbacks annotated with the inferred data type', () => {
+		const fields = [
+			{ type: 'input', name: 'email', schema: z.string() },
+			{ type: 'input', name: 'age', schema: z.number() }
+		] as const;
+		type Data = ReMapper<typeof fields>;
+
+		const form = makeGenerator()
+			.withType<MeterElement>('meter', DummyMeter)
+			.newForm([
+				...fields,
+				{
+					type: 'meter',
+					value: (data: Data) => {
+						expectTypeOf(data.email).toEqualTypeOf<string>();
+						expectTypeOf(data.age).toEqualTypeOf<number>();
+						return data.age / 100;
+					}
+				}
+			] as const);
+
+		const data = get(form.getData());
+		expectTypeOf(data.email).toEqualTypeOf<string>();
+		expectTypeOf(data.age).toEqualTypeOf<number>();
 	});
 
 	it('infers primitive array element types', () => {

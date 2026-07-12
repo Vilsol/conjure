@@ -14,8 +14,12 @@ export type WithClass<T> = Partial<
 
 export type StripName<T> = Omit<WithClass<T>, 'name'>;
 
+// The function arm uses method syntax so its data parameter is checked
+// bivariantly: callbacks may narrow it to the form's inferred data type
+// (e.g. `(data: ReMapper<typeof fields>) => ...`), which strictFunctionTypes
+// would otherwise reject as contravariant.
 export type Resolvable<T> =
-	T | PromiseLike<T> | ((data: { [key: string]: unknown }) => T | PromiseLike<T>) | Readable<T>;
+	T | PromiseLike<T> | { resolve(data: { [key: string]: unknown }): T | PromiseLike<T> }['resolve'] | Readable<T>;
 
 export interface BaseElement<T extends string> {
 	type: T;
