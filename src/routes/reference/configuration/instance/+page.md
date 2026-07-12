@@ -126,7 +126,7 @@ Returns a `Readable<boolean>` that re-evaluates the composed schema on every dat
 
 ### validate
 
-Runs validation immediately and returns whether the data is valid, updating the error store as a side effect. The instance calls this on every input and submit; you rarely need to call it yourself.
+Returns whether the current data is valid. Validation state is derived from the data store, so this is a plain read with no side effects — errors update automatically as the data changes. The instance uses it as the gate on submit; you rarely need to call it yourself.
 
 ### getValidationSchema
 
