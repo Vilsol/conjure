@@ -23,9 +23,7 @@ import { FormGenerator } from './generator.js';
 import type { HTMLInputAttributes } from 'svelte/elements';
 import type { StripName } from '$lib/types.js';
 
-export const Core = new FormGenerator()
-	.withType<never>('array' as never, Array)
-	.withType<never>('object' as never, Object);
+export const Core = new FormGenerator().withContainer('array', Array).withContainer('object', Object);
 
 export const Base = Core.withType<InputElement, StripName<HTMLInputAttributes>>(
 	'input',

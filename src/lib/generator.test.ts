@@ -1,6 +1,6 @@
 import type { Component } from 'svelte';
 import type { HTMLInputAttributes } from 'svelte/elements';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
 
 import type { InputElement } from './base-components/input.js';
 import { fromValidatorToParams } from './base-components/input.js';
@@ -79,5 +79,31 @@ describe('withCommonParam', () => {
 			.withDefaultParam('input', 'placeholder', 'Enter');
 
 		expect(generator.getCommonParams('label')).toEqual({ 'data-test': 'lbl' });
+	});
+});
+
+describe('withContainer', () => {
+	it('registers a component without extending the element union', () => {
+		const generator = new FormGenerator().withContainer('array', DummyInput);
+
+		expectTypeOf(generator).toEqualTypeOf<FormGenerator<never>>();
+	});
+
+	it('makes the container component retrievable', () => {
+		const generator = new FormGenerator()
+			.withContainer('array', DummyInput)
+			.withType<InputElement, StripName<HTMLInputAttributes>>('input', DummyInput, fromValidatorToParams);
+
+		expect(generator.getComponent('array' as never)).toBe(DummyInput);
+	});
+
+	it('returns a copy from getDefaultParams', () => {
+		const generator = new FormGenerator()
+			.withType<InputElement, StripName<HTMLInputAttributes>>('input', DummyInput, fromValidatorToParams)
+			.withDefaultParam('input', 'placeholder', 'Enter');
+
+		const params = generator.getDefaultParams('input');
+		params.placeholder = 'mutated';
+		expect(generator.getDefaultParams('input')).toEqual({ placeholder: 'Enter' });
 	});
 });

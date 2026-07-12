@@ -22,7 +22,7 @@ export type CommonSlot = 'wrapper' | 'label';
 export class FormGenerator<T extends BaseElement<string> = never> {
 	constructor(
 		private typeRegistry: Map<string, TypeRegistryElement<unknown>> = new Map(),
-		private defaultParams: Map<string, { [key: string]: string }> = new Map(),
+		private defaultParams: Map<string, { [key: string]: unknown }> = new Map(),
 		private commonParams: Map<CommonSlot, { [key: string]: unknown }> = new Map()
 	) {}
 
@@ -43,6 +43,20 @@ export class FormGenerator<T extends BaseElement<string> = never> {
 			fromValidator: fromValidator as (params: unknown, definition: ValidatorDefinition) => unknown
 		});
 		return new FormGenerator<T | M>(newTypeRegistry, new Map(this.defaultParams), new Map(this.commonParams));
+	}
+
+	/**
+	 * Register a structural container component (array/object) without
+	 * adding it to the element type union
+	 * @param type Container type name
+	 * @param component Container component
+	 */
+	withContainer<M extends BaseElement<string>>(type: string, component: Component<BaseProps<M>>): FormGenerator<T> {
+		const newTypeRegistry = new Map(this.typeRegistry);
+		newTypeRegistry.set(type, {
+			component: component as Component<BaseProps<BaseElement<string>>>
+		});
+		return new FormGenerator(newTypeRegistry, new Map(this.defaultParams), new Map(this.commonParams));
 	}
 
 	/**
@@ -68,7 +82,7 @@ export class FormGenerator<T extends BaseElement<string> = never> {
 	 * @param param Parameter name
 	 * @param value Default value
 	 */
-	withDefaultParam(typeName: T['type'], param: string, value: string): FormGenerator<T> {
+	withDefaultParam(typeName: T['type'], param: string, value: unknown): FormGenerator<T> {
 		const newDefaultParams = new Map(this.defaultParams);
 		const allParams = { ...(newDefaultParams.get(typeName) || {}) };
 		allParams[param] = value;
@@ -80,8 +94,8 @@ export class FormGenerator<T extends BaseElement<string> = never> {
 	 * Get all the default params for a type
 	 * @param typeName The type name
 	 */
-	getDefaultParams(typeName: T['type']): { [key: string]: string } {
-		return this.defaultParams.get(typeName) || {};
+	getDefaultParams(typeName: T['type']): { [key: string]: unknown } {
+		return { ...(this.defaultParams.get(typeName) || {}) };
 	}
 
 	/**

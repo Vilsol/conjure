@@ -617,3 +617,16 @@ describe('hand-written controls via createForm', () => {
 		expect(select.selectedIndex).toBe(1);
 	});
 });
+
+describe('default params', () => {
+	it('applies non-string default params to the DOM', async () => {
+		const generator = Base.withDefaultParam('input', 'disabled', true);
+		const { target } = await mountForm(
+			[{ type: 'input', name: 'a', schema: z.string() }] as never,
+			undefined,
+			generator
+		);
+
+		expect(target.querySelector('input')!.disabled).toBe(true);
+	});
+});
