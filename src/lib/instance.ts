@@ -152,6 +152,9 @@ const seedDefaults = (elements: Readonly<BaseElement<string>[]>, data: Record<st
 	}
 };
 
+const isThenable = <X>(value: X | PromiseLike<X>): value is PromiseLike<X> =>
+	typeof (value as { then?: unknown } | null | undefined)?.then === 'function';
+
 interface SchemaNode {
 	key: string;
 	schema?: ZodTypeAny;
@@ -415,8 +418,12 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 	resolveField<X>(field: Resolvable<X>): Readable<X> {
 		if (typeof field === 'function') {
 			return derived(this.data, ($data, set) => {
-				let cancelled = false;
 				const resolvable = (field as (data: { [key: string]: unknown }) => X | PromiseLike<X>)($data);
+				if (!isThenable(resolvable)) {
+					set(resolvable);
+					return;
+				}
+				let cancelled = false;
 				void Promise.resolve(resolvable).then((resolved) => {
 					if (!cancelled) {
 						set(resolved);
@@ -430,6 +437,10 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 
 		if (field !== null && typeof field === 'object' && 'subscribe' in field) {
 			return field;
+		}
+
+		if (!isThenable(field)) {
+			return writable(field);
 		}
 
 		const result = writable<X>();

@@ -715,6 +715,34 @@ describe('hidden field validation', () => {
 		expect(form.validate()).toBe(true);
 	});
 
+	it('applies function hides without any subscribers', () => {
+		const form = Base.newForm([{ type: 'input', name: 'email', schema: z.string().min(5), hide: () => true }] as never);
+
+		expect(form.validate()).toBe(true);
+	});
+
+	it('applies static hides synchronously', () => {
+		const form = Base.newForm([{ type: 'input', name: 'email', schema: z.string().min(5), hide: true }] as never);
+
+		expect(form.validate()).toBe(true);
+	});
+
+	it('allows submit when only hidden fields are invalid', async () => {
+		const onSubmit = vi.fn();
+		const { target } = await mountForm(
+			[
+				{ type: 'input', name: 'name', schema: z.string().min(3), value: 'hello' },
+				{ type: 'input', name: 'email', schema: z.string().min(5), hide: true }
+			] as never,
+			{ onSubmit } as never
+		);
+
+		target.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true }));
+		await tick();
+
+		expect(onSubmit).toHaveBeenCalledTimes(1);
+	});
+
 	it('clears validity blockage when a store-driven hide activates', async () => {
 		const hide = writable(false);
 		const { target, form } = await mountForm([
