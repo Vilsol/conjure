@@ -11,6 +11,7 @@ import type { MeterElement } from './base-components/meter.js';
 import { FormGenerator } from './generator.js';
 import type { ReMapper } from './instance.js';
 import type { BaseProps, StripName } from './types.js';
+import { getPath } from './utils/path.js';
 
 const DummyInput = (() => undefined) as unknown as Component<BaseProps<InputElement>>;
 const DummyMeter = (() => undefined) as unknown as Component<BaseProps<MeterElement>>;
@@ -147,5 +148,46 @@ describe('ReMapper type inference', () => {
 
 		const data = get(form.getData());
 		expectTypeOf(data.tags).toEqualTypeOf<string[]>();
+	});
+});
+
+describe('typed field paths', () => {
+	interface PathData {
+		email: string;
+		address: { street: string; geo: { lat: number } };
+		tags: string[];
+	}
+	const pathData: PathData = {
+		email: 'a@b.c',
+		address: { street: 'Main', geo: { lat: 1 } },
+		tags: ['x']
+	};
+
+	it('types getPath results from the path', () => {
+		expectTypeOf(getPath(pathData, 'email')).toEqualTypeOf<string>();
+		expectTypeOf(getPath(pathData, 'address.street')).toEqualTypeOf<string>();
+		expectTypeOf(getPath(pathData, 'address.geo.lat')).toEqualTypeOf<number>();
+		expectTypeOf(getPath(pathData, 'tags.0')).toEqualTypeOf<string | undefined>();
+	});
+
+	it('falls back to unknown for erased roots and unknown paths', () => {
+		const erased: unknown = pathData;
+		expectTypeOf(getPath(erased, 'anything.goes')).toEqualTypeOf<unknown>();
+		const dynamic: string = 'email';
+		expectTypeOf(getPath(pathData, dynamic)).toEqualTypeOf<unknown>();
+	});
+
+	it('works with form data inferred by ReMapper', () => {
+		const form = makeGenerator().newForm([
+			{
+				type: 'object',
+				name: 'address',
+				schema: z.object({ street: z.string() }),
+				elements: [{ type: 'input', name: 'street', schema: z.string() }]
+			}
+		]);
+
+		const data = get(form.getData());
+		expectTypeOf(getPath(data, 'address.street')).toEqualTypeOf<string>();
 	});
 });

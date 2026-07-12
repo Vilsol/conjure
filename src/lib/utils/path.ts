@@ -39,8 +39,50 @@ export const setPath = <T extends { [key: string]: unknown }>(root: T, path: str
 	return root;
 };
 
+type Primitive = string | number | boolean | bigint | symbol | null | undefined;
+
+// Recursion is depth-capped so recursive schema output types cannot send the
+// compiler into unbounded instantiation (TS2589).
+type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7];
+
+/**
+ * All dot-separated paths into T. Array elements are addressed by numeric
+ * segment (`tags.0`).
+ */
+export type FieldPath<T, D extends number = 8> = [D] extends [never]
+	? never
+	: T extends Primitive
+		? never
+		: T extends readonly (infer U)[]
+			? `${number}` | `${number}.${FieldPath<U, Prev[D]>}`
+			: { [K in keyof T & string]: K | `${K}.${FieldPath<T[K], Prev[D]>}` }[keyof T & string];
+
+/**
+ * The value type at a dot-separated path into T. Array lookups include
+ * `undefined` since the index may be out of bounds.
+ */
+export type PathValue<T, P extends string> = T extends Primitive
+	? undefined
+	: P extends `${infer K}.${infer Rest}`
+		? T extends readonly (infer U)[]
+			? PathValue<U, Rest>
+			: K extends keyof T
+				? PathValue<T[K], Rest>
+				: unknown
+		: T extends readonly (infer U)[]
+			? U | undefined
+			: P extends keyof T
+				? T[P]
+				: unknown;
+
 /**
  * Read a value from a nested object by dot-separated path.
+ *
+ * When the root's shape is known and the path is a literal within it, the
+ * result is typed via PathValue; otherwise it falls back to unknown.
  */
-export const getPath = (root: unknown, path: string): unknown =>
-	path.split('.').reduce<unknown>((current, segment) => read(current, segment), root);
+export function getPath<T, P extends FieldPath<T> & string>(root: T, path: P): PathValue<T, P>;
+export function getPath(root: unknown, path: string): unknown;
+export function getPath(root: unknown, path: string): unknown {
+	return path.split('.').reduce<unknown>((current, segment) => read(current, segment), root);
+}
