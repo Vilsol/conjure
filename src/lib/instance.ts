@@ -151,11 +151,43 @@ const seedDefaults = (elements: Readonly<BaseElement<string>[]>, data: Record<st
 	}
 };
 
+interface SchemaNode {
+	key: string;
+	schema?: ZodTypeAny;
+	hide: Resolvable<boolean>;
+	children?: SchemaNode[];
+}
+
+const buildSchemaNodes = (elements: Readonly<BaseElement<string>[]>): SchemaNode[] => {
+	const nodes: SchemaNode[] = [];
+	for (const element of elements) {
+		if (!('name' in element) || typeof element.name !== 'string') {
+			continue;
+		}
+		const hide = element.hide ?? false;
+		if (element.type === 'object' && 'elements' in element) {
+			const objectElement = element as ObjectElement<BaseElement<string>>;
+			nodes.push({
+				key: objectElement.name,
+				schema: objectElement.schema,
+				hide,
+				children: buildSchemaNodes(objectElement.elements)
+			});
+			continue;
+		}
+		if (!('schema' in element)) {
+			continue;
+		}
+		nodes.push({ key: element.name, schema: element.schema as ZodTypeAny, hide });
+	}
+	return nodes;
+};
+
 export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extends Readonly<BaseElement<string>[]>> {
 	private readonly data: Writable<ReMapper<E>>;
 	private readonly touched = writable<Record<string, boolean>>({});
 	private readonly selectOptions = new Map<string, Readonly<SelectOption[]>>();
-	private readonly schema: ZodObject;
+	private readonly schemaNodes: SchemaNode[];
 	private readonly validation: Readable<{ valid: boolean; errors: Record<string, string[]> }>;
 	private readonly errors: Readable<Record<string, string[]>>;
 
@@ -172,16 +204,9 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 		this.data = writable(seed as ReMapper<E>);
 
 		// TODO Support various validators
-		this.schema = zod.object(
-			elements.reduce<Record<string, ZodTypeAny>>((base, value) => {
-				if ('schema' in value && 'name' in value) {
-					base[value.name as string] = value.schema as ZodTypeAny;
-				}
-				return base;
-			}, {})
-		);
+		this.schemaNodes = buildSchemaNodes(elements);
 		this.validation = derived(this.data, ($data) => {
-			const result = this.schema.safeParse($data);
+			const result = this.composeSchema().safeParse($data);
 			if (result.success) {
 				return { valid: true, errors: {} };
 			}
@@ -398,8 +423,23 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 		return result;
 	}
 
-	// TODO Support various validators
+	private composeSchema(): ZodObject {
+		const build = (nodes: SchemaNode[]): ZodObject => {
+			const shape: Record<string, ZodTypeAny> = {};
+			for (const node of nodes) {
+				if (node.children) {
+					const childSchema = build(node.children);
+					shape[node.key] = node.schema ?? childSchema;
+				} else if (node.schema) {
+					shape[node.key] = node.schema;
+				}
+			}
+			return zod.object(shape);
+		};
+		return build(this.schemaNodes);
+	}
+
 	getValidationSchema(): ZodObject {
-		return this.schema;
+		return this.composeSchema();
 	}
 }

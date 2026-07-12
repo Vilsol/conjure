@@ -630,3 +630,39 @@ describe('default params', () => {
 		expect(target.querySelector('input')!.disabled).toBe(true);
 	});
 });
+
+describe('derived object schemas', () => {
+	it('validates nested objects without an explicit object schema', async () => {
+		const form = Base.newForm([
+			{
+				type: 'object',
+				name: 'address',
+				elements: [{ type: 'input', name: 'street', schema: z.string().min(3) }]
+			}
+		] as never);
+
+		await tick();
+		expect(form.validate()).toBe(false);
+
+		form.getData().set({ address: { street: 'Main St' } });
+		await tick();
+		expect(form.validate()).toBe(true);
+	});
+
+	it('prefers an explicit object schema over derived children', async () => {
+		const form = Base.newForm(
+			[
+				{
+					type: 'object',
+					name: 'address',
+					schema: z.object({}),
+					elements: [{ type: 'input', name: 'street', schema: z.string().min(3) }]
+				}
+			] as never,
+			{ data: { address: {} } }
+		);
+
+		await tick();
+		expect(form.validate()).toBe(true);
+	});
+});

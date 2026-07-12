@@ -36,7 +36,7 @@ export interface ArrayElement<T extends BaseElement<string>> extends BaseElement
 
 export interface ObjectElement<T extends BaseElement<string>> extends BaseElement<'object'> {
 	name: string;
-	schema: ZodObject;
+	schema?: ZodObject;
 	elements: Readonly<(T | ObjectElement<T> | ArrayElement<T>)[]>;
 }
 
