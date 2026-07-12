@@ -2,6 +2,7 @@
 	import Label from '$lib/common/Label.svelte';
 	import Wrapper from '$lib/common/Wrapper.svelte';
 	import { getPath } from '$lib/utils/path.js';
+	import { toText } from '$lib/utils/text.js';
 	import type { BaseProps } from '../types.js';
 
 	import type { InputElement } from './input.js';
@@ -14,9 +15,6 @@
 	const data = $derived(form.getData());
 
 	const type = $derived(($realParams.type as string | undefined) ?? 'text');
-
-	const toText = (value: unknown): string =>
-		typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? String(value) : '';
 
 	// Svelte owns this control's value: it is rendered from the data store,
 	// and data-conjure-managed tells syncControls to leave it alone.

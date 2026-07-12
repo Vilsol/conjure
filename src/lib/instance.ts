@@ -8,6 +8,7 @@ import type { SelectOption } from './base-components/select.js';
 import type { FormGenerator } from './generator.js';
 import type { ArrayElement, BaseElement, ObjectElement, Resolvable } from './types.js';
 import { getPath, setPath } from './utils/path.js';
+import { toText } from './utils/text.js';
 import { fromZod } from './validators/index.js';
 
 type SubRemap<T> =
@@ -86,9 +87,7 @@ const syncControls = (node: HTMLFormElement, data: unknown, selectOptions?: Sele
 				el.checked = next;
 			}
 		} else if (el instanceof HTMLInputElement && el.type === 'radio') {
-			const next =
-				(typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') &&
-				String(value) === el.value;
+			const next = value !== undefined && value !== null && toText(value) === el.value;
 			if (el.checked !== next) {
 				el.checked = next;
 			}
