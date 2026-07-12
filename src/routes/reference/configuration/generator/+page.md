@@ -45,7 +45,7 @@ const disabled = Base.withDefaultParam('input', 'disabled', true);
 
 ### withContainer
 
-Registers a structural container component (`array` or `object`) without extending the generator's element type union — containers aren't user-facing element types, so `newForm` doesn't need to know about them. Registering the same `type` again overwrites the previous registration.
+Registers a structural container component (`array` or `object`) without extending the generator's element type union — containers aren't user-facing element types, so `newForm` doesn't need to know about them. Registering the same `type` again overwrites the previous registration, including any `fromValidator` converter it carried.
 
 ```ts
 const generator = new FormGenerator().withContainer('array', Array).withContainer('object', Object);
