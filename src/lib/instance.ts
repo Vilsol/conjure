@@ -60,12 +60,20 @@ const coerceValue = (el: NamedControl): unknown => {
 	return el.value;
 };
 
-const syncControls = (node: HTMLFormElement, data: unknown) => {
+type SelectOptionsMap = ReadonlyMap<string, Readonly<SelectOption[]>>;
+
+const syncControls = (node: HTMLFormElement, data: unknown, selectOptions?: SelectOptionsMap) => {
 	const controls = node.querySelectorAll<NamedControl>('input[name], textarea[name], select[name]');
 	for (const el of controls) {
 		// Managed controls render their value declaratively from the data
 		// store; writing to them here would fight Svelte for ownership.
 		if (el.hasAttribute('data-conjure-managed')) {
+			continue;
+		}
+		// Registered selects encode option indexes as DOM values while the
+		// data holds the original option values; writing those back would
+		// clear the selection.
+		if (el instanceof HTMLSelectElement && selectOptions?.has(el.name)) {
 			continue;
 		}
 		const value = getPath(data, el.name);
@@ -220,7 +228,7 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 			};
 
 			const unsubscribe = this.data.subscribe((data) => {
-				syncControls(node, data);
+				syncControls(node, data, this.selectOptions);
 			});
 
 			node.addEventListener('input', handleInput);

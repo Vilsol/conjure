@@ -26,7 +26,13 @@
 			return { checked: !!value };
 		}
 		if (type === 'radio') {
-			return { checked: value !== undefined && toText(value) === toText($realParams.value) };
+			// Pin the DOM value ('on' is the platform default) so the transient
+			// text-phase render before params resolve cannot clear it.
+			const radioValue = $realParams.value ?? 'on';
+			return {
+				value: radioValue,
+				checked: value !== undefined && value !== null && toText(value) === toText(radioValue)
+			};
 		}
 		if (type === 'file') {
 			return {};

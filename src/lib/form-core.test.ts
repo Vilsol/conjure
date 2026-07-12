@@ -357,6 +357,33 @@ describe('select object values', () => {
 		expect(select.selectedIndex).toBe(1);
 	});
 
+	it('keeps built-in selects untouched by syncControls on programmatic updates', async () => {
+		const { target, form } = await mountForm([
+			{
+				type: 'select',
+				name: 'size',
+				schema: z.string(),
+				options: [
+					{ label: 'Small', value: 's' },
+					{ label: 'Large', value: 'l' }
+				]
+			}
+		] as never);
+
+		form.getData().set({ size: 'l' });
+		await tick();
+		flushSync();
+		// A second update that leaves the selection unchanged: Svelte will not
+		// re-render the value, so only the syncControls skip protects the select.
+		form.getData().set({ size: 'l' });
+		await tick();
+		flushSync();
+
+		const select = target.querySelector('select')!;
+		expect(select.selectedIndex).toBe(1);
+		expect([...select.options].map((o) => o.value)).toEqual(['0', '1']);
+	});
+
 	it('resolves multiple selections to an array of option objects', async () => {
 		const { target, form } = await mountForm([
 			{
@@ -516,6 +543,21 @@ describe('radio groups', () => {
 
 		expect(get(form.getData())).toMatchObject({ color: 'blue' });
 	});
+
+	it('keeps a radio without an explicit value checked after selection', async () => {
+		const { target, form } = await mountForm([
+			{ type: 'input', name: 'agree2', schema: z.string(), params: { type: 'radio' } }
+		] as never);
+
+		const input = target.querySelector('input')!;
+		input.checked = true;
+		input.dispatchEvent(new Event('change', { bubbles: true }));
+		await tick();
+		flushSync();
+
+		expect(input.checked).toBe(true);
+		expect(get(form.getData())).toMatchObject({ agree2: 'on' });
+	});
 });
 
 describe('hand-written controls via createForm', () => {
@@ -557,5 +599,21 @@ describe('hand-written controls via createForm', () => {
 		await tick();
 
 		expect((get(form.getData()) as { doc?: unknown }).doc).toBe(file);
+	});
+
+	it('skips index-encoded selects registered via registerSelectOptions', async () => {
+		const form = Base.newForm([{ type: 'select', name: 'size', schema: z.string() }] as never);
+		const node = rawForm(form, '<select name="size"><option value="0">S</option><option value="1">L</option></select>');
+		form.registerSelectOptions('size', [
+			{ label: 'S', value: 's' },
+			{ label: 'L', value: 'l' }
+		]);
+
+		const select = node.querySelector('select')!;
+		select.selectedIndex = 1;
+		form.getData().set({ size: 'l' });
+		await tick();
+
+		expect(select.selectedIndex).toBe(1);
 	});
 });
