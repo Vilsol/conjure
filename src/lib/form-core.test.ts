@@ -1,5 +1,5 @@
 import { flushSync, mount, unmount } from 'svelte';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
@@ -664,5 +664,69 @@ describe('derived object schemas', () => {
 
 		await tick();
 		expect(form.validate()).toBe(true);
+	});
+});
+
+describe('hidden field validation', () => {
+	it('excludes statically hidden fields from validation', async () => {
+		const form = Base.newForm([{ type: 'input', name: 'email', schema: z.string().min(5), hide: true }] as never);
+
+		await tick();
+		expect(form.validate()).toBe(true);
+	});
+
+	it('tracks a data-dependent hide as the user types', async () => {
+		const form = Base.newForm([
+			{ type: 'input', name: 'other', schema: z.string().optional() },
+			{
+				type: 'input',
+				name: 'email',
+				schema: z.string().min(5),
+				hide: (data: { other?: string }) => !data.other
+			}
+		] as never);
+		const unsubscribe = form.isValid().subscribe(() => undefined);
+
+		await tick();
+		expect(form.validate()).toBe(true);
+
+		form.getData().set({ other: 'x' });
+		await tick();
+		expect(form.validate()).toBe(false);
+
+		form.getData().set({ other: 'x', email: 'hello@example.com' });
+		await tick();
+		expect(form.validate()).toBe(true);
+		unsubscribe();
+	});
+
+	it('excludes an entire hidden object subtree', async () => {
+		const form = Base.newForm([
+			{
+				type: 'object',
+				name: 'address',
+				hide: true,
+				schema: z.object({ street: z.string().min(3) }),
+				elements: [{ type: 'input', name: 'street', schema: z.string().min(3) }]
+			}
+		] as never);
+
+		await tick();
+		expect(form.validate()).toBe(true);
+	});
+
+	it('clears validity blockage when a store-driven hide activates', async () => {
+		const hide = writable(false);
+		const { target, form } = await mountForm([
+			{ type: 'input', name: 'email', schema: z.string().min(5), hide }
+		] as never);
+
+		await setInput(target.querySelector('input')!, 'abc');
+		expect(get(form.isValid())).toBe(false);
+
+		hide.set(true);
+		await tick();
+		flushSync();
+		expect(get(form.isValid())).toBe(true);
 	});
 });

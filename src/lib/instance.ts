@@ -8,6 +8,7 @@ import type { SelectOption } from './base-components/select.js';
 import type { FormGenerator } from './generator.js';
 import type { ArrayElement, BaseElement, ObjectElement, Resolvable } from './types.js';
 import { getPath, setPath } from './utils/path.js';
+import { storeArrayToStore } from './utils/store.js';
 import { toText } from './utils/text.js';
 import { fromZod } from './validators/index.js';
 
@@ -189,6 +190,9 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 	private readonly touched = writable<Record<string, boolean>>({});
 	private readonly selectOptions = new Map<string, Readonly<SelectOption[]>>();
 	private readonly schemaNodes: SchemaNode[];
+	private readonly hiddenFlags: Readable<(boolean | undefined)[]>;
+	private lastFlagsKey: string | undefined;
+	private lastComposed: ZodObject | undefined;
 	private readonly validation: Readable<{ valid: boolean; errors: Record<string, string[]> }>;
 	private readonly errors: Readable<Record<string, string[]>>;
 
@@ -206,8 +210,19 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 
 		// TODO Support various validators
 		this.schemaNodes = buildSchemaNodes(elements);
-		this.validation = derived(this.data, ($data) => {
-			const result = this.composeSchema().safeParse($data);
+		const hiddenStores: Readable<boolean | undefined>[] = [];
+		const collectHidden = (nodes: SchemaNode[]) => {
+			for (const node of nodes) {
+				hiddenStores.push(this.resolveField(node.hide));
+				if (node.children) {
+					collectHidden(node.children);
+				}
+			}
+		};
+		collectHidden(this.schemaNodes);
+		this.hiddenFlags = storeArrayToStore(hiddenStores);
+		this.validation = derived([this.data, this.hiddenFlags], ([$data, $flags]) => {
+			const result = this.composeSchema($flags).safeParse($data);
 			if (result.success) {
 				return { valid: true, errors: {} };
 			}
@@ -424,23 +439,41 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 		return result;
 	}
 
-	private composeSchema(): ZodObject {
+	private composeSchema(flags: readonly (boolean | undefined)[]): ZodObject {
+		const key = flags.map((flag) => (flag ? '1' : '0')).join('');
+		if (this.lastComposed && key === this.lastFlagsKey) {
+			return this.lastComposed;
+		}
+		let index = 0;
 		const build = (nodes: SchemaNode[]): ZodObject => {
 			const shape: Record<string, ZodTypeAny> = {};
 			for (const node of nodes) {
+				const hidden = flags[index++] === true;
 				if (node.children) {
+					// Children flags are consumed even when the object is
+					// hidden so the cursor stays aligned with the store order.
 					const childSchema = build(node.children);
-					shape[node.key] = node.schema ?? childSchema;
-				} else if (node.schema) {
+					if (!hidden) {
+						shape[node.key] = node.schema ?? childSchema;
+					}
+				} else if (!hidden && node.schema) {
 					shape[node.key] = node.schema;
 				}
 			}
 			return zod.object(shape);
 		};
-		return build(this.schemaNodes);
+		const composed = build(this.schemaNodes);
+		this.lastFlagsKey = key;
+		this.lastComposed = composed;
+		return composed;
 	}
 
+	/**
+	 * The currently effective validation schema: object schemas compose from
+	 * their children unless explicitly provided, and hidden fields are
+	 * excluded while hidden.
+	 */
 	getValidationSchema(): ZodObject {
-		return this.composeSchema();
+		return this.composeSchema(get(this.hiddenFlags));
 	}
 }
