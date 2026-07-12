@@ -124,7 +124,7 @@ export class FormGenerator<T extends BaseElement<string> = never> {
 	 * @param elements Elements of the schema
 	 * @param options Form behavior such as the submit handler
 	 */
-	newForm<E extends Readonly<(T | ArrayElement<T> | ObjectElement<T>)[]>>(
+	newForm<const E extends Readonly<(T | ArrayElement<T> | ObjectElement<T>)[]>>(
 		elements: E,
 		options?: FormOptions<ReMapper<E>>
 	): FormInstance<FormGenerator<T>, E> {

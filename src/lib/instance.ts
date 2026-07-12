@@ -1,7 +1,7 @@
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { Readable, Writable } from 'svelte/store';
 import { derived, get, writable } from 'svelte/store';
-import type { ZodObject, ZodTypeAny } from 'zod';
-import * as zod from 'zod';
+import type { ZodTypeAny } from 'zod';
 import { ZodDefault } from 'zod';
 
 import type { SelectOption } from './base-components/select.js';
@@ -18,11 +18,11 @@ type SubRemap<T> =
 		: T extends ArrayElement<BaseElement<string>>
 			? T['element'] extends Omit<ObjectElement<BaseElement<string>>, 'name'>
 				? ReMapper<T['element']['elements']>[]
-				: T['element'] extends { schema: infer S extends ZodTypeAny }
-					? zod.output<S>[]
+				: T['element'] extends { schema: infer S extends StandardSchemaV1 }
+					? StandardSchemaV1.InferOutput<S>[]
 					: unknown[]
-			: T extends { schema: infer S extends ZodTypeAny }
-				? zod.output<S>
+			: T extends { schema: infer S extends StandardSchemaV1 }
+				? StandardSchemaV1.InferOutput<S>
 				: unknown;
 
 export type ReMapper<E extends Readonly<BaseElement<string>[]>> = {
@@ -157,7 +157,7 @@ const isThenable = <X>(value: X | PromiseLike<X>): value is PromiseLike<X> =>
 
 interface SchemaNode {
 	key: string;
-	schema?: ZodTypeAny;
+	schema?: StandardSchemaV1;
 	hide: Resolvable<boolean>;
 	children?: SchemaNode[];
 }
@@ -183,7 +183,7 @@ const buildSchemaNodes = (elements: Readonly<BaseElement<string>[]>): SchemaNode
 		if (!('schema' in element)) {
 			continue;
 		}
-		nodes.push({ key: element.name, schema: element.schema as ZodTypeAny, hide });
+		nodes.push({ key: element.name, schema: element.schema as StandardSchemaV1, hide });
 	}
 	return nodes;
 };
@@ -194,8 +194,6 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 	private readonly selectOptions = new Map<string, Readonly<SelectOption[]>>();
 	private readonly schemaNodes: SchemaNode[];
 	private readonly hiddenFlags: Readable<(boolean | undefined)[]>;
-	private lastFlagsKey: string | undefined;
-	private lastComposed: ZodObject | undefined;
 	private readonly validation: Readable<{ valid: boolean; errors: Record<string, string[]> }>;
 	private readonly errors: Readable<Record<string, string[]>>;
 
@@ -224,18 +222,26 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 		};
 		collectHidden(this.schemaNodes);
 		this.hiddenFlags = storeArrayToStore(hiddenStores);
-		this.validation = derived([this.data, this.hiddenFlags], ([$data, $flags]) => {
-			const result = this.composeSchema($flags).safeParse($data);
-			if (result.success) {
-				return { valid: true, errors: {} };
-			}
-			const errors: Record<string, string[]> = {};
-			for (const issue of result.error.issues) {
-				const key = issue.path.join('.');
-				(errors[key] ??= []).push(issue.message);
-			}
-			return { valid: false, errors };
-		});
+		this.validation = derived(
+			[this.data, this.hiddenFlags],
+			([$data, $flags], set) => {
+				const outcome = this.validateData($flags, $data);
+				if (!(outcome instanceof Promise)) {
+					set(outcome);
+					return;
+				}
+				let cancelled = false;
+				void outcome.then((state) => {
+					if (!cancelled) {
+						set(state);
+					}
+				});
+				return () => {
+					cancelled = true;
+				};
+			},
+			{ valid: true, errors: {} } as { valid: boolean; errors: Record<string, string[]> }
+		);
 		this.errors = derived([this.validation, this.touched], ([$validation, $touched]) => {
 			if ($touched['*']) {
 				return $validation.errors;
@@ -359,7 +365,7 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 	}
 
 	resolveParams<X extends { [key: string]: unknown }>(
-		input: BaseElement<string> & { name?: string; params?: Resolvable<X>; schema?: ZodTypeAny }
+		input: BaseElement<string> & { name?: string; params?: Resolvable<X>; schema?: StandardSchemaV1 }
 	): Readable<X> {
 		let base = {
 			...this.generator.getDefaultParams(input.type)
@@ -450,41 +456,62 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 		return result;
 	}
 
-	private composeSchema(flags: readonly (boolean | undefined)[]): ZodObject {
-		const key = flags.map((flag) => (flag ? '1' : '0')).join('');
-		if (this.lastComposed && key === this.lastFlagsKey) {
-			return this.lastComposed;
-		}
+	/**
+	 * Validate the current data against each element's Standard Schema,
+	 * skipping hidden fields. An object element with its own schema validates
+	 * as a whole; otherwise it composes from its visible children. Flags are
+	 * consumed in traversal order even for hidden subtrees so the cursor stays
+	 * aligned with the store order. Returns a promise only when a schema
+	 * validates asynchronously.
+	 */
+	private validateData(
+		flags: readonly (boolean | undefined)[],
+		data: unknown
+	):
+		| { valid: boolean; errors: Record<string, string[]> }
+		| Promise<{ valid: boolean; errors: Record<string, string[]> }> {
+		const errors: Record<string, string[]> = {};
+		const pending: Promise<void>[] = [];
+
+		const record = (schema: StandardSchemaV1, value: unknown, prefix: string) => {
+			const apply = (result: StandardSchemaV1.Result<unknown>) => {
+				for (const issue of result.issues ?? []) {
+					const rel = (issue.path ?? [])
+						.map((segment) => String(typeof segment === 'object' && segment !== null ? segment.key : segment))
+						.join('.');
+					const key = rel ? (prefix ? `${prefix}.${rel}` : rel) : prefix;
+					(errors[key] ??= []).push(issue.message);
+				}
+			};
+			const outcome = schema['~standard'].validate(value);
+			if (outcome instanceof Promise) {
+				pending.push(outcome.then(apply));
+			} else {
+				apply(outcome);
+			}
+		};
+
 		let index = 0;
-		const build = (nodes: SchemaNode[]): ZodObject => {
-			const shape: Record<string, ZodTypeAny> = {};
+		const walk = (nodes: SchemaNode[], prefix: string, active: boolean) => {
 			for (const node of nodes) {
 				const hidden = flags[index++] === true;
+				const visible = active && !hidden;
+				const path = prefix ? `${prefix}.${node.key}` : node.key;
 				if (node.children) {
-					// Children flags are consumed even when the object is
-					// hidden so the cursor stays aligned with the store order.
-					const childSchema = build(node.children);
-					if (!hidden) {
-						shape[node.key] = node.schema ?? childSchema;
+					if (visible && node.schema) {
+						record(node.schema, getPath(data, path), path);
+						walk(node.children, path, false);
+					} else {
+						walk(node.children, path, visible);
 					}
-				} else if (!hidden && node.schema) {
-					shape[node.key] = node.schema;
+				} else if (visible && node.schema) {
+					record(node.schema, getPath(data, path), path);
 				}
 			}
-			return zod.object(shape);
 		};
-		const composed = build(this.schemaNodes);
-		this.lastFlagsKey = key;
-		this.lastComposed = composed;
-		return composed;
-	}
+		walk(this.schemaNodes, '', true);
 
-	/**
-	 * The currently effective validation schema: object schemas compose from
-	 * their children unless explicitly provided, and hidden fields are
-	 * excluded while hidden.
-	 */
-	getValidationSchema(): ZodObject {
-		return this.composeSchema(get(this.hiddenFlags));
+		const finalize = () => ({ valid: Object.keys(errors).length === 0, errors });
+		return pending.length === 0 ? finalize() : Promise.all(pending).then(finalize);
 	}
 }

@@ -1,3 +1,4 @@
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { ZodDefault, ZodNullable, ZodNumber, ZodOptional, ZodString, ZodStringFormat } from 'zod';
 import type { ZodTypeAny } from 'zod';
 
@@ -15,10 +16,10 @@ const unwrap = (schema: ZodTypeAny): ZodTypeAny => {
 	}
 };
 
-export const fromZod = (schema: ZodTypeAny): ValidatorDefinition => {
+export const fromZod = (input: StandardSchemaV1): ValidatorDefinition => {
 	const def: ValidatorDefinition = {};
 
-	schema = unwrap(schema);
+	const schema = unwrap(input as unknown as ZodTypeAny);
 
 	if (schema instanceof ZodString || schema instanceof ZodStringFormat) {
 		const format = 'format' in schema ? schema.format : null;

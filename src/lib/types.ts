@@ -1,7 +1,7 @@
 import 'svelte2tsx/svelte-jsx';
 
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { Readable } from 'svelte/store';
-import type { ZodArray, ZodObject, ZodTypeAny } from 'zod';
 import type { Component } from 'svelte';
 import type { FormInstance } from '$lib/instance.js';
 import type { FormGenerator } from '$lib/generator.js';
@@ -33,20 +33,20 @@ type DistributiveOmit<T, K extends string> = T extends T ? Omit<T, K> : never;
 
 export interface ArrayElement<T extends BaseElement<string>> extends BaseElement<'array'> {
 	name: string;
-	schema: ZodArray<ZodTypeAny>;
+	schema: StandardSchemaV1;
 	element: DistributiveOmit<T | ArrayElement<T> | ObjectElement<T>, 'name'>;
 	count: Resolvable<number>;
 }
 
 export interface ObjectElement<T extends BaseElement<string>> extends BaseElement<'object'> {
 	name: string;
-	schema?: ZodObject;
+	schema?: StandardSchemaV1;
 	elements: Readonly<(T | ObjectElement<T> | ArrayElement<T>)[]>;
 }
 
 export interface BaseInput<T extends string> extends BaseElement<T> {
 	name: string;
-	schema: ZodTypeAny;
+	schema: StandardSchemaV1;
 	value?: unknown;
 	label?: string;
 	components?: {

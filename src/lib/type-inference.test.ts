@@ -1,3 +1,4 @@
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { Component } from 'svelte';
 import type { HTMLInputAttributes } from 'svelte/elements';
 import { get } from 'svelte/store';
@@ -47,6 +48,31 @@ describe('ReMapper type inference', () => {
 		const data = get(form.getData());
 		expectTypeOf(data.email).toEqualTypeOf<string>();
 		expectTypeOf(data.age).toEqualTypeOf<number>();
+	});
+
+	it('infers field types without an `as const` assertion', () => {
+		const form = makeGenerator().newForm([
+			{ type: 'input', name: 'email', schema: z.string() },
+			{ type: 'input', name: 'age', schema: z.number() }
+		]);
+
+		const data = get(form.getData());
+		expectTypeOf(data.email).toEqualTypeOf<string>();
+		expectTypeOf(data.age).toEqualTypeOf<number>();
+	});
+
+	it('infers field types from any Standard Schema, not just zod', () => {
+		const numberSchema: StandardSchemaV1<number, number> = {
+			'~standard': {
+				version: 1,
+				vendor: 'custom',
+				validate: (value) => (typeof value === 'number' ? { value } : { issues: [{ message: 'expected number' }] })
+			}
+		};
+
+		const form = makeGenerator().newForm([{ type: 'input', name: 'score', schema: numberSchema }]);
+
+		expectTypeOf(get(form.getData()).score).toEqualTypeOf<number>();
 	});
 
 	it('infers nested object element fields', () => {

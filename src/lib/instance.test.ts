@@ -1,3 +1,4 @@
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { Component } from 'svelte';
 import type { HTMLInputAttributes } from 'svelte/elements';
 import { get, readable, writable } from 'svelte/store';
@@ -209,17 +210,37 @@ describe('FormInstance', () => {
 		});
 	});
 
-	describe('getValidationSchema', () => {
-		it('collects schemas of named elements into an object schema', () => {
+	describe('validation', () => {
+		it('validates named element values against their schemas', () => {
 			const form = makeGenerator().newForm([
 				{ type: 'input', name: 'name', schema: z.string().min(1) },
 				{ type: 'input', name: 'age', schema: z.number() }
 			]);
 
-			const schema = form.getValidationSchema();
-			expect(Object.keys(schema.shape)).toEqual(['name', 'age']);
-			expect(schema.safeParse({ name: 'a', age: 3 }).success).toBe(true);
-			expect(schema.safeParse({ name: '', age: 'x' }).success).toBe(false);
+			form.getData().set({ name: 'a', age: 3 });
+			expect(form.validate()).toBe(true);
+
+			form.getData().set({ name: '', age: 3 });
+			expect(form.validate()).toBe(false);
+		});
+
+		it('validates against a non-zod Standard Schema', () => {
+			const evenSchema: StandardSchemaV1<number, number> = {
+				'~standard': {
+					version: 1,
+					vendor: 'custom',
+					validate: (value) =>
+						typeof value === 'number' && value % 2 === 0 ? { value } : { issues: [{ message: 'must be even' }] }
+				}
+			};
+
+			const form = makeGenerator().newForm([{ type: 'input', name: 'n', schema: evenSchema }]);
+
+			form.getData().set({ n: 2 });
+			expect(form.validate()).toBe(true);
+
+			form.getData().set({ n: 3 });
+			expect(form.validate()).toBe(false);
 		});
 	});
 });
