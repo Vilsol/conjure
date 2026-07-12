@@ -2,12 +2,28 @@ import { FormInstance } from './instance.js';
 import type { FormOptions, ReMapper } from './instance.js';
 import type { ArrayElement, BaseElement, BaseProps, ExtractBaseElement, ObjectElement } from './types.js';
 import type { ValidatorDefinition } from './validators/index.js';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { Component } from 'svelte';
 
 interface TypeRegistryElement<P> {
 	component: Component<BaseProps<BaseElement<string>>>;
 	fromValidator?: (params: P, definition: ValidatorDefinition) => P;
 }
+
+// Check-only companion to newForm's E: after E is inferred, each top-level
+// element's default `value` must match its own schema's input type. This is
+// pure assignability checking, so it sidesteps the sibling-inference
+// limitation that prevents typing resolvable callbacks from E. Elements
+// nested in object/array containers are not checked: recursing into them
+// subjects the containers to excess-property checks against the mapped
+// intersection, breaking valid literals.
+type ValidateValues<E> = {
+	[K in keyof E]: E[K] extends { schema: infer S extends StandardSchemaV1; value: infer V }
+		? V extends StandardSchemaV1.InferInput<S>
+			? unknown
+			: { value: StandardSchemaV1.InferInput<S> }
+		: unknown;
+};
 
 export type CommonSlot = 'wrapper' | 'label';
 
@@ -125,7 +141,7 @@ export class FormGenerator<T extends BaseElement<string> = never> {
 	 * @param options Form behavior such as the submit handler
 	 */
 	newForm<const E extends Readonly<(T | ArrayElement<T> | ObjectElement<T>)[]>>(
-		elements: E,
+		elements: E & ValidateValues<E>,
 		options?: FormOptions<ReMapper<E>>
 	): FormInstance<FormGenerator<T>, E> {
 		// TODO Validate no duplicate names

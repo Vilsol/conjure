@@ -151,6 +151,23 @@ describe('ReMapper type inference', () => {
 	});
 });
 
+describe('schema-typed default values', () => {
+	it('accepts a default value matching the schema', () => {
+		const form = makeGenerator().newForm([{ type: 'input', name: 'email', schema: z.string(), value: 'a@b.c' }]);
+		expectTypeOf(get(form.getData()).email).toEqualTypeOf<string>();
+	});
+
+	it('rejects a default value that mismatches the schema', () => {
+		// @ts-expect-error number default on a string schema
+		makeGenerator().newForm([{ type: 'input', name: 'email', schema: z.string(), value: 42 }]);
+	});
+
+	it('still accepts elements without a default value', () => {
+		const form = makeGenerator().newForm([{ type: 'input', name: 'email', schema: z.string() }]);
+		expectTypeOf(get(form.getData()).email).toEqualTypeOf<string>();
+	});
+});
+
 describe('typed field paths', () => {
 	interface PathData {
 		email: string;
