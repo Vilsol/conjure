@@ -10,10 +10,10 @@ const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 let cleanup: (() => void) | undefined;
 
-const mountForm = async (elements: never, options?: never) => {
+const mountForm = async (elements: never, options?: never, generator = Base) => {
 	const target = document.createElement('div');
 	document.body.appendChild(target);
-	const form = Base.newForm(elements, options);
+	const form = generator.newForm(elements, options);
 	const app = mount(Form, { target, props: { form } });
 	cleanup = () => {
 		void unmount(app);
@@ -458,5 +458,32 @@ describe('programmatic data updates', () => {
 		flushSync();
 
 		expect(target.querySelector('.conjure-error')!.textContent).toBeTruthy();
+	});
+});
+
+describe('common component params', () => {
+	it('renders generator wrapper and label params on built-in elements', async () => {
+		const generator = Base.withCommonParam('wrapper', 'class', 'my-row').withCommonParam('label', 'data-test', 'lbl');
+		const { target } = await mountForm(
+			[{ type: 'input', name: 'email', label: 'Email', schema: z.string() }] as never,
+			undefined,
+			generator
+		);
+
+		expect(target.querySelector('div.my-row')).toBeTruthy();
+		expect(target.querySelector('span[data-test="lbl"]')).toBeTruthy();
+	});
+
+	it('does not leak params to forms from other generators', async () => {
+		const custom = Base.withCommonParam('wrapper', 'class', 'my-row');
+		await mountForm([{ type: 'input', name: 'a', schema: z.string() }] as never, undefined, custom);
+		const firstCleanup = cleanup;
+
+		const { target } = await mountForm([{ type: 'input', name: 'b', schema: z.string() }] as never);
+
+		expect(target.querySelector('div.conjure-wrapper')).toBeTruthy();
+		expect(target.querySelector('div.my-row')).toBeFalsy();
+
+		firstCleanup?.();
 	});
 });

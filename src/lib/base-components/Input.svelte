@@ -14,10 +14,10 @@
 	const WrapperElement = $derived(definition.components?.wrapper || Wrapper);
 </script>
 
-<WrapperElement>
+<WrapperElement params={form.generator.getCommonParams('wrapper')}>
 	{#if definition.label}
 		{@const LabelElement = definition.components?.label || Label}
-		<LabelElement>
+		<LabelElement params={form.generator.getCommonParams('label')}>
 			<label for={fieldName}>{definition.label}</label>
 		</LabelElement>
 	{/if}

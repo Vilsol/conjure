@@ -5,5 +5,5 @@ export * from './instance.js';
 export * from './base.js';
 
 export { Form };
-export { default as Wrapper, setParam as setWrapperParam } from './common/Wrapper.svelte';
-export { default as Label, setParam as setLabelParam } from './common/Label.svelte';
+export { default as Wrapper } from './common/Wrapper.svelte';
+export { default as Label } from './common/Label.svelte';

@@ -9,6 +9,8 @@ interface TypeRegistryElement<P> {
 	fromValidator?: (params: P, definition: ValidatorDefinition) => P;
 }
 
+export type CommonSlot = 'wrapper' | 'label';
+
 /**
  * Used to create a form generator that can be extended with new element types.
  * It allows you to define new element types, retrieve components and validators, and create new form instances.
@@ -20,7 +22,8 @@ interface TypeRegistryElement<P> {
 export class FormGenerator<T extends BaseElement<string> = never> {
 	constructor(
 		private typeRegistry: Map<string, TypeRegistryElement<unknown>> = new Map(),
-		private defaultParams: Map<string, { [key: string]: string }> = new Map()
+		private defaultParams: Map<string, { [key: string]: string }> = new Map(),
+		private commonParams: Map<CommonSlot, { [key: string]: unknown }> = new Map()
 	) {}
 
 	/**
@@ -39,7 +42,7 @@ export class FormGenerator<T extends BaseElement<string> = never> {
 			component: component as Component<BaseProps<BaseElement<string>>>,
 			fromValidator: fromValidator as (params: unknown, definition: ValidatorDefinition) => unknown
 		});
-		return new FormGenerator<T | M>(newTypeRegistry, new Map(this.defaultParams));
+		return new FormGenerator<T | M>(newTypeRegistry, new Map(this.defaultParams), new Map(this.commonParams));
 	}
 
 	/**
@@ -70,7 +73,7 @@ export class FormGenerator<T extends BaseElement<string> = never> {
 		const allParams = { ...(newDefaultParams.get(typeName) || {}) };
 		allParams[param] = value;
 		newDefaultParams.set(typeName, allParams);
-		return new FormGenerator(new Map(this.typeRegistry), newDefaultParams);
+		return new FormGenerator(new Map(this.typeRegistry), newDefaultParams, new Map(this.commonParams));
 	}
 
 	/**
@@ -79,6 +82,26 @@ export class FormGenerator<T extends BaseElement<string> = never> {
 	 */
 	getDefaultParams(typeName: T['type']): { [key: string]: string } {
 		return this.defaultParams.get(typeName) || {};
+	}
+
+	/**
+	 * Set an attribute rendered on the built-in Wrapper or Label of every element
+	 * @param slot Common component slot
+	 * @param param Parameter name
+	 * @param value Value
+	 */
+	withCommonParam(slot: CommonSlot, param: string, value: unknown): FormGenerator<T> {
+		const newCommonParams = new Map(this.commonParams);
+		newCommonParams.set(slot, { ...(newCommonParams.get(slot) || {}), [param]: value });
+		return new FormGenerator(new Map(this.typeRegistry), new Map(this.defaultParams), newCommonParams);
+	}
+
+	/**
+	 * Get all params for a common component slot
+	 * @param slot Common component slot
+	 */
+	getCommonParams(slot: CommonSlot): { [key: string]: unknown } {
+		return this.commonParams.get(slot) || {};
 	}
 
 	/**

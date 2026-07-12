@@ -61,3 +61,23 @@ describe('FormGenerator', () => {
 		expect(generator.getFromValidator('input')).toBe(fromValidatorToParams);
 	});
 });
+
+describe('withCommonParam', () => {
+	it('stores params per slot and returns a new generator', () => {
+		const base = new FormGenerator();
+		const custom = base.withCommonParam('wrapper', 'class', 'my-row');
+
+		expect(custom.getCommonParams('wrapper')).toEqual({ class: 'my-row' });
+		expect(custom.getCommonParams('label')).toEqual({});
+		expect(base.getCommonParams('wrapper')).toEqual({});
+	});
+
+	it('survives withType and withDefaultParam chaining', () => {
+		const generator = new FormGenerator()
+			.withCommonParam('label', 'data-test', 'lbl')
+			.withType<InputElement, StripName<HTMLInputAttributes>>('input', DummyInput, fromValidatorToParams)
+			.withDefaultParam('input', 'placeholder', 'Enter');
+
+		expect(generator.getCommonParams('label')).toEqual({ 'data-test': 'lbl' });
+	});
+});

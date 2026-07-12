@@ -16,15 +16,17 @@ The default wrapper only carries the `conjure-wrapper` class:
 }
 ```
 
-### setParam
+### withCommonParam
 
-`setWrapperParam` sets an attribute on **all** wrappers globally — for example to replace the class:
+`withCommonParam('wrapper', ...)` on the generator sets an attribute on the wrapper of every element rendered by forms from that generator — for example to replace the class:
 
 ```ts
-import { setWrapperParam } from 'conjure-svelte';
+import { Base } from 'conjure-svelte';
 
-setWrapperParam('class', 'conjure-wrapper my-form-row');
+const MyBase = Base.withCommonParam('wrapper', 'class', 'my-form-row');
 ```
+
+Like every generator method it returns a new generator, so different generators can carry different wrapper params.
 
 ## Replacing the wrapper
 

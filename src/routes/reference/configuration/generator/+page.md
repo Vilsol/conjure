@@ -42,6 +42,14 @@ Sets a default HTML attribute for every element of a type. Element-level `params
 const generator = Base.withDefaultParam('input', 'placeholder', 'Type here…');
 ```
 
+### withCommonParam
+
+Sets an attribute on the built-in [`Wrapper`](../../components/wrapper/) or [`Label`](../../components/label/) rendered by every element created from forms of this generator.
+
+```ts
+const generator = Base.withCommonParam('wrapper', 'class', 'my-form-row');
+```
+
 ### newForm
 
 Creates a [form instance](../instance/) from an array of element definitions and optional [options](../instance/#Options).
@@ -50,6 +58,6 @@ Creates a [form instance](../instance/) from an array of element definitions and
 const form = generator.newForm(elements, { onSubmit });
 ```
 
-### getComponent / getFromValidator / getDefaultParams
+### getComponent / getFromValidator / getDefaultParams / getCommonParams
 
 Lookups used by the rendering components; you normally only need these when [building custom element components](../../extending/custom-elements/).

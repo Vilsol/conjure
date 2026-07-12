@@ -1,23 +1,14 @@
-<script lang="ts" module>
-	const params: Record<string, unknown> = $state({
-		class: 'conjure-wrapper'
-	});
-
-	export const setParam = (param: string, value: unknown) => {
-		params[param] = value;
-	};
-</script>
-
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
 	interface Props {
 		children?: Snippet;
+		params?: Record<string, unknown>;
 	}
 
-	let { children }: Props = $props();
+	let { children, params }: Props = $props();
 </script>
 
-<div {...params}>
+<div class="conjure-wrapper" {...params}>
 	{@render children?.()}
 </div>

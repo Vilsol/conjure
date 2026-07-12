@@ -6,13 +6,15 @@ The `Label` component wraps the `<label>` of every built-in element that defines
 
 ## Styling
 
-Target the `conjure-label` class in your CSS, or set attributes on **all** labels globally with `setLabelParam`:
+Target the `conjure-label` class in your CSS, or set attributes on every label rendered by a generator's forms with `withCommonParam`:
 
 ```ts
-import { setLabelParam } from 'conjure-svelte';
+import { Base } from 'conjure-svelte';
 
-setLabelParam('class', 'conjure-label text-sm font-medium');
+const MyBase = Base.withCommonParam('label', 'class', 'conjure-label text-sm font-medium');
 ```
+
+Like every generator method it returns a new generator, so different generators can carry different label params.
 
 ## Replacing the label
 
