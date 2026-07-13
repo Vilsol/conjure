@@ -38,3 +38,12 @@ jobs:
 
       - name: Package
         run: pnpm run package
+
+      # internal-resolution-error is svelte-package's canonical .svelte.d.ts
+      # layout, unresolvable by plain tsc under node16 for every Svelte lib;
+      # real consumers resolve through bundler/svelte tooling.
+      - name: Check published types
+        run: pnpm run check:package
+
+      - name: Detect dead code and dependencies
+        run: pnpm run knip

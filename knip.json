@@ -1,0 +1,6 @@
+{
+	"$schema": "https://unpkg.com/knip@5/schema.json",
+	"entry": ["src/lib/base-components/index.ts", "src/routes/**/*.{ts,svelte}", "config/*.ts"],
+	"project": ["src/**/*.{ts,svelte}", "*.{js,ts}", "config/*.ts"],
+	"ignoreDependencies": ["@iconify-json/.*", "shiki"]
+}
