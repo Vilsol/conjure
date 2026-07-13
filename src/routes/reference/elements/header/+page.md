@@ -35,7 +35,7 @@ In addition, it has the following attributes:
         class: 'text-orange-500'
       }
     }
-  ] as const);
+  ]);
 </script>
 
 <Form {form} />

@@ -23,7 +23,7 @@ In addition, it has the following attributes:
       type: 'textarea',
       name: 'hello',
     },
-  ] as const);
+  ]);
   
   const data = form.getData();
 </script>

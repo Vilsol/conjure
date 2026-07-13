@@ -51,7 +51,7 @@ The `<Form>` component renders a [form instance](../../configuration/instance/):
         click: () => undefined,
         params: { type: 'submit' }
       }
-    ] as const,
+    ],
     {
       onSubmit: (data) => alert(JSON.stringify(data))
     }

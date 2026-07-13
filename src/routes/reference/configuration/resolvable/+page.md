@@ -67,6 +67,38 @@ const count = writable(1);
 }
 ```
 
+## Typing the data parameter
+
+The `data` parameter of a resolvable function is typed as `{ [key: string]: unknown }` by default. TypeScript cannot infer it from the surrounding elements: the callback lives inside the same array the data type is derived from, and inference cannot feed an aggregate of the whole array back into one of its members (this is a compiler limitation, not a conjure one — see [microsoft/TypeScript#47599](https://github.com/microsoft/TypeScript/issues/47599)).
+
+To get a typed `data`, declare the schema-bearing fields separately and annotate the callback with `ReMapper`:
+
+```ts
+import { Base, type ReMapper } from 'conjure-svelte';
+
+const fields = [
+	{
+		type: 'input',
+		name: 'stuff',
+		label: 'Stuff',
+		schema: zod.string()
+	}
+] as const;
+
+type Data = ReMapper<typeof fields>;
+
+const form = Base.newForm([
+	...fields,
+	{
+		type: 'meter',
+		// data is typed: { stuff: string }
+		value: (data: Data) => Math.min(data.stuff.length / 10, 1)
+	}
+]);
+```
+
+The `as const` on the standalone `fields` array is required — outside of `newForm` there is nothing else to capture the literal element types.
+
 ## Common Use Cases
 
 1. **Dynamic Visibility**: Using a function to determine if an element should be hidden based on form data

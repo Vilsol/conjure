@@ -24,7 +24,7 @@ In addition, it has the following attributes:
       type: 'progress',
       value: 0.5,
     },
-  ] as const);
+  ]);
 </script>
 
 <Form {form} />

@@ -31,6 +31,10 @@ export default {
 					to: '/reference/configuration/resolvable/'
 				},
 				{
+					title: 'Schemas',
+					to: '/reference/configuration/schemas/'
+				},
+				{
 					title: 'BaseElement',
 					to: '/reference/configuration/base-element/'
 				},

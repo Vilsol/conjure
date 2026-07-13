@@ -26,7 +26,7 @@ In addition, it has the following attributes:
       name: 'foo',
       label: 'Text'
     }
-  ] as const);
+  ]);
   
   const data = form.getData();
 </script>
@@ -51,7 +51,7 @@ In addition, it has the following attributes:
         type: 'checkbox'
       }
     }
-  ] as const);
+  ]);
   
   const data = form.getData();
 </script>
@@ -76,7 +76,7 @@ In addition, it has the following attributes:
         type: 'color'
       }
     }
-  ] as const);
+  ]);
   
   const data = form.getData();
 </script>
@@ -101,7 +101,7 @@ In addition, it has the following attributes:
         type: 'datetime-local'
       }
     }
-  ] as const);
+  ]);
   
   const data = form.getData();
 </script>
@@ -126,7 +126,7 @@ In addition, it has the following attributes:
         type: 'email'
       }
     }
-  ] as const);
+  ]);
   
   const data = form.getData();
 </script>
@@ -151,7 +151,7 @@ In addition, it has the following attributes:
         type: 'file'
       }
     }
-  ] as const);
+  ]);
   
   const data = form.getData();
 </script>
@@ -176,7 +176,7 @@ In addition, it has the following attributes:
         type: 'password'
       }
     }
-  ] as const);
+  ]);
   
   const data = form.getData();
 </script>
@@ -211,7 +211,7 @@ In addition, it has the following attributes:
         value: 'b'
       }
     }
-  ] as const);
+  ]);
   
   const data = form.getData();
 </script>
@@ -236,7 +236,7 @@ In addition, it has the following attributes:
         type: 'range'
       }
     }
-  ] as const);
+  ]);
   
   const data = form.getData();
 </script>

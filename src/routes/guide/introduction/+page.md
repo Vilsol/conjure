@@ -24,7 +24,7 @@ Conjure is a schema-driven form generator for Svelte 5. Instead of hand-writing 
         schema: z.coerce.number().min(18),
         params: { type: 'number' }
       }
-    ] as const,
+    ],
     {
       onSubmit: (data) => alert(JSON.stringify(data))
     }
@@ -45,7 +45,7 @@ Because the form is data, you can do things that are awkward with hand-written f
 - **Generate forms at runtime** — from an API response, a database table, a CMS definition.
 - **Derive everything from one source of truth** — the zod schema on each field drives validation, error messages, and even HTML constraint attributes like `minlength` and `type="email"`.
 - **Reuse and compose** — nest [objects](/reference/meta-elements/object/) and [arrays](/reference/meta-elements/array/), share element definitions between forms, or wrap common patterns in functions.
-- **Stay type-safe** — declare the elements `as const` and the form data is inferred field-by-field from the zod schemas. `form.getData()` knows that `email` is a `string`.
+- **Stay type-safe** — the form data is inferred field-by-field from the element schemas. `form.getData()` knows that `email` is a `string`.
 
 ## How it works
 

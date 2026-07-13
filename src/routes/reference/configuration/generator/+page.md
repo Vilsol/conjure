@@ -9,7 +9,7 @@ Conjure ships a ready-made generator, `Base`, with all the [built-in elements](.
 ```ts
 import { Base } from 'conjure-svelte';
 
-const form = Base.newForm([...] as const);
+const form = Base.newForm([...]);
 ```
 
 ## Methods

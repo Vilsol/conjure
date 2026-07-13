@@ -27,7 +27,7 @@ In addition, it has the following attributes:
       text: 'Press Me',
       click: () => alert('Hello'),
     },
-  ] as const);
+  ]);
 </script>
 
 <Form {form} />

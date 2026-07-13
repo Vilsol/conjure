@@ -8,7 +8,7 @@ title: Form Instance
 const form = Base.newForm(
 	[
 		{ type: 'input', name: 'email', label: 'Email', schema: z.email() }
-	] as const,
+	],
 	{
 		data: { email: 'stored@example.com' },
 		onSubmit: (data) => console.log(data)
@@ -16,9 +16,11 @@ const form = Base.newForm(
 );
 ```
 
-:::tip[Declare elements as const]
-Passing the element array `as const` lets conjure infer the data type field-by-field from the zod schemas — `getData()`, `onSubmit`, and the `data` option all become fully typed. Without it, values fall back to broader types.
+:::tip[Fully typed data]
+The data type is inferred field-by-field from the element schemas — `getData()`, `onSubmit`, and the `data` option are all fully typed. No `as const` is needed: `newForm` captures the element literals itself.
 :::
+
+Two elements may not write to the same data path: `newForm` throws `Duplicate element name: "..."` at construction, using the full dotted path for nested elements. The one exception is radio inputs, which share a name to form a group.
 
 ## Options
 
@@ -56,7 +58,7 @@ Seeding does not mark fields as touched, so an edit page with invalid stored val
         label: 'Email',
         schema: z.email()
       }
-    ] as const,
+    ],
     {
       data: { email: 'stored@example.com' }
     }
@@ -110,7 +112,7 @@ Returns a `Readable<boolean>` that re-evaluates the composed schema on every dat
         label: 'Email',
         schema: z.email()
       }
-    ] as const,
+    ],
     {
       onSubmit: (data) => alert(JSON.stringify(data))
     }

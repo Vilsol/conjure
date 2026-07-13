@@ -36,7 +36,7 @@ In addition, it has the following attributes:
         { label: 'Option 3', value: 3 },
       ],
     }
-  ] as const);
+  ]);
   
   const data = form.getData();
 </script>
@@ -69,7 +69,7 @@ Option values are not limited to strings — selecting an option puts the **orig
         schema: z.object({ id: z.number(), hex: z.string() }),
         options: colors
       }
-    ] as const,
+    ],
     {
       data: { color: { id: 2, hex: '#00f' } }
     }

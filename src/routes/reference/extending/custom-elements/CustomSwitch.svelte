@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getPath } from '$lib';
 	import Label from '$lib/common/Label.svelte';
 	import Wrapper from '$lib/common/Wrapper.svelte';
 	import type { BaseProps } from '$lib/types.js';
@@ -11,7 +12,7 @@
 	const realParams = $derived(form.resolveParams(definition));
 	const fieldName = $derived(prefix + definition.name);
 	const data = $derived(form.getData());
-	const checked = $derived(!!($data as Record<string, unknown>)[definition.name]);
+	const checked = $derived(!!getPath($data, fieldName));
 	const disabled = $derived(!!$realParams.disabled);
 </script>
 

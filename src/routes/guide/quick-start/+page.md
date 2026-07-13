@@ -37,7 +37,7 @@ import * as zod from 'zod';
     <div>Step 3</div>
   </div>
   <div class="stepper-step">
-    <div>Construct the form schema. Declare the elements <code>as const</code> so the form data is fully typed, and handle submission with <code>onSubmit</code> — it is only called when the data passes validation.</div>
+    <div>Construct the form schema — the form data is fully typed, inferred from the element schemas — and handle submission with <code>onSubmit</code> — it is only called when the data passes validation.</div>
 
 ```ts
 const form = Base.newForm(
@@ -55,7 +55,7 @@ const form = Base.newForm(
 			schema: zod.string().min(16),
 			params: { type: 'password' }
 		}
-	] as const,
+	],
 	{
 		onSubmit: (data) => {
 			// data is typed: { email: string; password: string }

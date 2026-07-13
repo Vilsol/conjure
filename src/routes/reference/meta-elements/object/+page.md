@@ -47,7 +47,7 @@ When `schema` is omitted, the object's validation schema is derived recursively 
         }
       ]
     }
-  ] as const);
+  ]);
 
   const data = form.getData();
 </script>

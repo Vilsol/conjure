@@ -11,7 +11,7 @@
 			label: 'Toggle me',
 			schema: z.boolean()
 		}
-	] as const);
+	]);
 
 	const data = form.getData();
 </script>

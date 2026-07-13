@@ -24,7 +24,7 @@ In addition, it has the following attributes:
       type: 'meter',
       value: 0.5,
     },
-  ] as const);
+  ]);
 </script>
 
 <Form {form} />

@@ -67,7 +67,7 @@ A [`hide`](../../configuration/base-element/) on `element` is not consulted for 
         return base;
       }
     }
-  ] as const);
+  ]);
 
   const data = form.getData();
 </script>
