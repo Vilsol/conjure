@@ -144,7 +144,6 @@ export class FormGenerator<T extends BaseElement<string> = never> {
 		elements: E & ValidateValues<E>,
 		options?: FormOptions<ReMapper<E>>
 	): FormInstance<FormGenerator<T>, E> {
-		// TODO Validate no duplicate names
 		return new FormInstance<FormGenerator<T>, E>(this, elements, options);
 	}
 }

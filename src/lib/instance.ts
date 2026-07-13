@@ -152,6 +152,40 @@ const seedDefaults = (elements: Readonly<BaseElement<string>[]>, data: Record<st
 	}
 };
 
+// Radio inputs legitimately share a name (one group, one data path). That is
+// only detectable when params is a plain object; radios configured through
+// resolvable params or generator defaults must not reuse a name.
+const isStaticRadio = (element: BaseElement<string>): boolean => {
+	if (!('params' in element)) {
+		return false;
+	}
+	const params = element.params;
+	return (
+		typeof params === 'object' &&
+		params !== null &&
+		!('subscribe' in params) &&
+		!('then' in params) &&
+		(params as { type?: unknown }).type === 'radio'
+	);
+};
+
+const assertUniqueNames = (elements: Readonly<BaseElement<string>[]>, seen: Map<string, boolean>, prefix = '') => {
+	for (const element of elements) {
+		if (!('name' in element) || typeof element.name !== 'string') {
+			continue;
+		}
+		const path = prefix + element.name;
+		const radio = isStaticRadio(element);
+		if (seen.has(path) && !(radio && seen.get(path))) {
+			throw new Error(`Duplicate element name: "${path}"`);
+		}
+		seen.set(path, radio);
+		if (element.type === 'object' && 'elements' in element) {
+			assertUniqueNames((element as ObjectElement<BaseElement<string>>).elements, seen, path + '.');
+		}
+	}
+};
+
 const isThenable = <X>(value: X | PromiseLike<X>): value is PromiseLike<X> =>
 	typeof (value as { then?: unknown } | null | undefined)?.then === 'function';
 
@@ -202,6 +236,7 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 		public elements: E,
 		private options: FormOptions<ReMapper<E>> = {}
 	) {
+		assertUniqueNames(elements, new Map());
 		const seed: Record<string, unknown> = {};
 		seedDefaults(elements, seed);
 		if (options.data) {

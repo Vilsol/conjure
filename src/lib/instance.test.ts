@@ -243,4 +243,68 @@ describe('FormInstance', () => {
 			expect(form.validate()).toBe(false);
 		});
 	});
+
+	describe('duplicate name validation', () => {
+		it('throws when two elements share a name', () => {
+			expect(() =>
+				makeGenerator().newForm([
+					{ type: 'input', name: 'email', schema: z.string() },
+					{ type: 'input', name: 'email', schema: z.string() }
+				])
+			).toThrow('Duplicate element name: "email"');
+		});
+
+		it('throws for duplicates nested in an object element', () => {
+			expect(() =>
+				makeGenerator().newForm([
+					{
+						type: 'object',
+						name: 'address',
+						schema: z.object({ street: z.string() }),
+						elements: [
+							{ type: 'input', name: 'street', schema: z.string() },
+							{ type: 'input', name: 'street', schema: z.string() }
+						]
+					}
+				])
+			).toThrow('Duplicate element name: "address.street"');
+		});
+
+		it('allows radio inputs to share a name', () => {
+			expect(() =>
+				makeGenerator().newForm([
+					{ type: 'input', name: 'color', schema: z.string(), params: { type: 'radio', value: 'red' } },
+					{ type: 'input', name: 'color', schema: z.string(), params: { type: 'radio', value: 'blue' } }
+				])
+			).not.toThrow();
+		});
+
+		it('rejects a non-radio element reusing a radio group name', () => {
+			expect(() =>
+				makeGenerator().newForm([
+					{ type: 'input', name: 'color', schema: z.string(), params: { type: 'radio', value: 'red' } },
+					{ type: 'input', name: 'color', schema: z.string() }
+				])
+			).toThrow('Duplicate element name: "color"');
+		});
+
+		it('allows the same leaf name under different objects', () => {
+			expect(() =>
+				makeGenerator().newForm([
+					{
+						type: 'object',
+						name: 'home',
+						schema: z.object({ street: z.string() }),
+						elements: [{ type: 'input', name: 'street', schema: z.string() }]
+					},
+					{
+						type: 'object',
+						name: 'work',
+						schema: z.object({ street: z.string() }),
+						elements: [{ type: 'input', name: 'street', schema: z.string() }]
+					}
+				])
+			).not.toThrow();
+		});
+	});
 });
