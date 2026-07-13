@@ -2,6 +2,7 @@ import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { Component } from 'svelte';
 import type { HTMLInputAttributes } from 'svelte/elements';
 import { get } from 'svelte/store';
+import * as v from 'valibot';
 import { describe, expectTypeOf, it } from 'vitest';
 import { z } from 'zod';
 
@@ -148,6 +149,24 @@ describe('ReMapper type inference', () => {
 
 		const data = get(form.getData());
 		expectTypeOf(data.tags).toEqualTypeOf<string[]>();
+	});
+});
+
+describe('valibot schemas (Standard Schema conformance)', () => {
+	it('infers field types from valibot schemas', () => {
+		const form = makeGenerator().newForm([
+			{ type: 'input', name: 'email', schema: v.string() },
+			{ type: 'input', name: 'age', schema: v.number() }
+		]);
+
+		const data = get(form.getData());
+		expectTypeOf(data.email).toEqualTypeOf<string>();
+		expectTypeOf(data.age).toEqualTypeOf<number>();
+	});
+
+	it('checks default values against valibot schemas', () => {
+		// @ts-expect-error number default on a valibot string schema
+		makeGenerator().newForm([{ type: 'input', name: 'email', schema: v.string(), value: 42 }]);
 	});
 });
 

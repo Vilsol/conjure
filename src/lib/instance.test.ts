@@ -2,6 +2,7 @@ import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { Component } from 'svelte';
 import type { HTMLInputAttributes } from 'svelte/elements';
 import { get, readable, writable } from 'svelte/store';
+import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
@@ -241,6 +242,47 @@ describe('FormInstance', () => {
 
 			form.getData().set({ n: 3 });
 			expect(form.validate()).toBe(false);
+		});
+	});
+
+	describe('standard schema validators', () => {
+		it('validates against a valibot schema', () => {
+			const form = makeGenerator().newForm([{ type: 'input', name: 'email', schema: v.pipe(v.string(), v.email()) }]);
+
+			form.getData().set({ email: 'not-an-email' });
+			expect(form.validate()).toBe(false);
+
+			form.getData().set({ email: 'test@example.com' });
+			expect(form.validate()).toBe(true);
+		});
+
+		it('resolves asynchronous schema validation while subscribed', async () => {
+			const asyncEven: StandardSchemaV1<number, number> = {
+				'~standard': {
+					version: 1,
+					vendor: 'custom',
+					validate: (value) =>
+						Promise.resolve(
+							typeof value === 'number' && value % 2 === 0 ? { value } : { issues: [{ message: 'must be even' }] }
+						)
+				}
+			};
+
+			const form = makeGenerator().newForm([{ type: 'input', name: 'n', schema: asyncEven }]);
+			// Validation is a lazy derived store: async results only land while
+			// something is subscribed (the Form component always is).
+			const unsubscribe = form.isValid().subscribe(() => {});
+
+			form.getData().set({ n: 3 });
+			expect(form.validate()).toBe(true);
+			await tick();
+			expect(form.validate()).toBe(false);
+
+			form.getData().set({ n: 4 });
+			await tick();
+			expect(form.validate()).toBe(true);
+
+			unsubscribe();
 		});
 	});
 
