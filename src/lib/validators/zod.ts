@@ -16,7 +16,9 @@ const unwrap = (schema: ZodTypeAny): ZodTypeAny => {
 	}
 };
 
-export const fromZod = (input: StandardSchemaV1): ValidatorDefinition => {
+// Accepts any Standard Schema; attribute extraction is Zod-only since the
+// spec exposes no introspection — non-Zod schemas yield an empty definition.
+export const fromSchema = (input: StandardSchemaV1): ValidatorDefinition => {
 	const def: ValidatorDefinition = {};
 
 	const schema = unwrap(input as unknown as ZodTypeAny);

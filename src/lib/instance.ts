@@ -10,7 +10,7 @@ import type { ArrayElement, BaseElement, ObjectElement, Resolvable } from './typ
 import { getPath, setPath } from './utils/path.js';
 import { storeArrayToStore } from './utils/store.js';
 import { toText } from './utils/text.js';
-import { fromZod } from './validators/index.js';
+import { fromSchema } from './validators/index.js';
 
 type SubRemap<T> =
 	T extends ObjectElement<BaseElement<string>>
@@ -375,7 +375,7 @@ export class FormInstance<T extends FormGenerator<BaseElement<string>>, E extend
 			const fromValidator = this.generator.getFromValidator<X>(input.type);
 			if (fromValidator) {
 				// TODO Support various validators
-				base = fromValidator(base, fromZod(input.schema));
+				base = fromValidator(base, fromSchema(input.schema));
 			}
 		}
 
