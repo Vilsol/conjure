@@ -68,7 +68,7 @@
     "@sveltejs/kit": "^2.69.2",
     "@sveltejs/package": "^2.5.8",
     "@sveltejs/vite-plugin-svelte": "^7.2.0",
-    "@sveltepress/theme-default": "^7.3.3",
+    "@sveltepress/theme-default": "^8.1.3",
     "@sveltepress/vite": "^1.3.12",
     "chokidar-cli": "^3.0.0",
     "eslint": "^10.0.0",
