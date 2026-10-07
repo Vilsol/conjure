@@ -65,7 +65,7 @@
     "@iconify-json/vscode-icons": "^1.2.66",
     "@standard-schema/spec": "^1.1.0",
     "@sveltejs/adapter-static": "^3.0.10",
-    "@sveltejs/kit": "^2.69.2",
+    "@sveltejs/kit": "^3.0.1",
     "@sveltejs/package": "^2.5.8",
     "@sveltejs/vite-plugin-svelte": "^7.2.0",
     "@sveltepress/theme-default": "^7.3.3",
